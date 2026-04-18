@@ -1,622 +1,504 @@
 <script lang="ts">
 	export let data: { user: App.Locals['user'] };
+
+	const colors = ['#ff3d8a','#9b4dff','#00e5cc','#ffe600','#ff6b35','#39ff7a','#3d8bff'];
+	let tick = 0;
+	if (typeof setInterval !== 'undefined') {
+		setInterval(() => tick = (tick + 1) % colors.length, 1200);
+	}
 </script>
 
 <svelte:head>
 	<title>olfke.be</title>
-	<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400;1,600&family=Cormorant+SC:wght@300;400;500;600;700&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+	<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=Syne+Mono&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </svelte:head>
 
-<!-- Atmosphere — layered warm glows -->
-<div class="atmo-fire-left"></div>
-<div class="atmo-fire-right"></div>
-<div class="atmo-green-bottom"></div>
-<div class="atmo-vignette"></div>
-
-<!-- Corner chrome -->
-<div class="corner tl"></div>
-<div class="corner tr"></div>
-<div class="corner bl"></div>
-<div class="corner br"></div>
+<!-- floating noise blobs -->
+<div class="blob b1"></div>
+<div class="blob b2"></div>
+<div class="blob b3"></div>
+<div class="blob b4"></div>
+<div class="blob b5"></div>
 
 <!-- NAV -->
 <nav>
-	<a href="/" class="brand">Olfke.be</a>
-	<div class="nav-center mono xs dim">
-		<span class="nav-dot"></span>
-		SYSTEM ONLINE
+	<a href="/" class="brand">olfke.be</a>
+	<div class="nav-pill">
+		<span class="ndot"></span>
+		online
 	</div>
-	<div class="nav-links">
-		<a href="/work">Work</a>
+	<div class="nav-r">
+		<a href="/work">work</a>
 		{#if data.user}
-			<a href="/homelab" class="nav-green">Homelab</a>
+			<a href="/homelab" class="hl-link">homelab</a>
 			<form method="POST" action="/login?/logout" style="display:inline">
-				<button type="submit" class="nav-btn">Logout</button>
+				<button type="submit" class="nav-btn">out</button>
 			</form>
 		{:else}
-			<a href="/login">Access</a>
+			<a href="/login">in</a>
 		{/if}
 	</div>
 </nav>
 
-<!-- ═══════════════════════════════════
-     HERO — full viewport poster
-════════════════════════════════════ -->
+<!-- HERO — absolute chaos, lovingly arranged -->
 <section class="hero">
 
-	<!-- Background illustrated texture -->
-	<div class="hero-bg">
-		<!-- Large decorative circle/mandala -->
-		<svg class="hero-mandala" viewBox="0 0 1000 1000" fill="none" xmlns="http://www.w3.org/2000/svg">
-			<circle cx="500" cy="500" r="480" stroke="#c8943a" stroke-width="0.5" opacity="0.08"/>
-			<circle cx="500" cy="500" r="420" stroke="#c8943a" stroke-width="0.5" opacity="0.06"/>
-			<circle cx="500" cy="500" r="340" stroke="#c8943a" stroke-width="1" opacity="0.05"/>
-			<circle cx="500" cy="500" r="240" stroke="#c8943a" stroke-width="0.5" opacity="0.07"/>
-			<circle cx="500" cy="500" r="140" stroke="#3ae8a0" stroke-width="0.5" opacity="0.06"/>
-			<circle cx="500" cy="500" r="60"  stroke="#3ae8a0" stroke-width="1"   opacity="0.08"/>
-			<!-- Radial spokes -->
-			{#each {length: 24} as _, i}
-				<line
-					x1={500 + 60  * Math.cos(i * 15 * Math.PI/180)}
-					y1={500 + 60  * Math.sin(i * 15 * Math.PI/180)}
-					x2={500 + 480 * Math.cos(i * 15 * Math.PI/180)}
-					y2={500 + 480 * Math.sin(i * 15 * Math.PI/180)}
-					stroke="#c8943a" stroke-width="0.3" opacity="0.04"
-				/>
-			{/each}
-			<!-- Outer tick marks -->
-			{#each {length: 72} as _, i}
-				<line
-					x1={500 + 472 * Math.cos(i * 5 * Math.PI/180)}
-					y1={500 + 472 * Math.sin(i * 5 * Math.PI/180)}
-					x2={500 + 483 * Math.cos(i * 5 * Math.PI/180)}
-					y2={500 + 483 * Math.sin(i * 5 * Math.PI/180)}
-					stroke="#c8943a" stroke-width={i % 3 === 0 ? "1" : "0.4"} opacity="0.1"
-				/>
-			{/each}
-			<!-- Inner ornament hex -->
-			<polygon points="500,220 718,340 718,660 500,780 282,660 282,340"
-				stroke="#c8943a" stroke-width="0.6" fill="none" opacity="0.06"/>
-			<polygon points="500,310 655,395 655,605 500,690 345,605 345,395"
-				stroke="#3ae8a0" stroke-width="0.4" fill="none" opacity="0.05"/>
-		</svg>
+	<!-- Big rotating ring -->
+	<div class="ring r1"></div>
+	<div class="ring r2"></div>
+	<div class="ring r3"></div>
+
+	<!-- Scattered labels -->
+	<div class="label-float lf1 mono">SYS_OLFKE_BE</div>
+	<div class="label-float lf2 mono">v1.0.0</div>
+	<div class="label-float lf3 mono">GHENT — BE</div>
+	<div class="label-float lf4 mono">51.05°N</div>
+
+	<!-- Main title — absolutely enormous -->
+	<div class="hero-title-wrap">
+		<div class="ht-row1">
+			<span class="ht-o">O</span>
+			<span class="ht-l">L</span>
+			<span class="ht-f">F</span>
+			<span class="ht-k">K</span>
+			<span class="ht-e">E</span>
+		</div>
+		<div class="ht-row2">
+			<span class="ht-dot">.</span>
+			<span class="ht-b">B</span>
+			<span class="ht-e2">E</span>
+		</div>
 	</div>
 
-	<!-- Hero content -->
-	<div class="hero-content">
-
-		<div class="hero-eyebrow">
-			<div class="eyebrow-ornament">
-				<svg viewBox="0 0 200 12" fill="none">
-					<line x1="0" y1="6" x2="70" y2="6" stroke="#6a4818" stroke-width="0.5"/>
-					<circle cx="78" cy="6" r="2" fill="#c8943a" opacity="0.6"/>
-					<line x1="86" y1="6" x2="114" y2="6" stroke="#6a4818" stroke-width="0.5"/>
-					<circle cx="122" cy="6" r="2" fill="#c8943a" opacity="0.6"/>
-					<line x1="130" y1="6" x2="200" y2="6" stroke="#6a4818" stroke-width="0.5"/>
-				</svg>
-			</div>
-			<span class="eyebrow-text">Transmission Incoming</span>
-			<div class="eyebrow-ornament">
-				<svg viewBox="0 0 200 12" fill="none">
-					<line x1="0" y1="6" x2="70" y2="6" stroke="#6a4818" stroke-width="0.5"/>
-					<circle cx="78" cy="6" r="2" fill="#c8943a" opacity="0.6"/>
-					<line x1="86" y1="6" x2="114" y2="6" stroke="#6a4818" stroke-width="0.5"/>
-					<circle cx="122" cy="6" r="2" fill="#c8943a" opacity="0.6"/>
-					<line x1="130" y1="6" x2="200" y2="6" stroke="#6a4818" stroke-width="0.5"/>
-				</svg>
-			</div>
-		</div>
-
-		<h1 class="hero-title">
-			<span class="ht-main">Olfke</span><span class="ht-tld">.be</span>
-		</h1>
-
-		<p class="hero-subtitle">
-			<em>Personal hub — projects, tools & infrastructure</em>
-		</p>
-
-		<div class="hero-divider">
-			<svg viewBox="0 0 600 20" fill="none" class="divider-svg">
-				<line x1="0" y1="10" x2="220" y2="10" stroke="#4a3010" stroke-width="0.75"/>
-				<path d="M228 10 L240 4 L252 10 L240 16 Z" fill="#c8943a" opacity="0.5"/>
-				<line x1="260" y1="10" x2="280" y2="10" stroke="#4a3010" stroke-width="0.75"/>
-				<circle cx="300" cy="10" r="4" stroke="#c8943a" stroke-width="1" fill="none" opacity="0.6"/>
-				<circle cx="300" cy="10" r="1.5" fill="#c8943a" opacity="0.6"/>
-				<line x1="320" y1="10" x2="340" y2="10" stroke="#4a3010" stroke-width="0.75"/>
-				<path d="M348 10 L360 4 L372 10 L360 16 Z" fill="#c8943a" opacity="0.5"/>
-				<line x1="380" y1="10" x2="600" y2="10" stroke="#4a3010" stroke-width="0.75"/>
-			</svg>
-		</div>
-
-		<div class="hero-meta">
-			<div class="meta-item">
-				<span class="meta-dot green-dot"></span>
-				<span class="meta-label">Ghent, Belgium</span>
-			</div>
-			<div class="meta-sep">·</div>
-			<div class="meta-item">
-				<span class="meta-dot teal-dot"></span>
-				<span class="meta-label">Online</span>
-			</div>
-			<div class="meta-sep">·</div>
-			<div class="meta-item">
-				<span class="meta-dot gold-dot"></span>
-				<span class="meta-label">Self-hosted</span>
-			</div>
-		</div>
-
+	<!-- Subtitle drifting under -->
+	<div class="hero-sub">
+		<span class="hs-dash">—</span>
+		<span>personal hub</span>
+		<span class="hs-sep">×</span>
+		<span>projects</span>
+		<span class="hs-sep">×</span>
+		<span>tools</span>
+		<span class="hs-sep">×</span>
+		<span>infrastructure</span>
+		<span class="hs-dash">—</span>
 	</div>
 
-	<!-- Side readout — floated right -->
-	<div class="hero-readout">
-		<div class="readout-title mono xs">System Status</div>
-		<div class="readout-rows">
-			<div class="rr"><span class="rr-k">Status</span><span class="rr-v" style="color:var(--green)">Operational ●</span></div>
-			<div class="rr"><span class="rr-k">Location</span><span class="rr-v">Ghent, BE</span></div>
-			<div class="rr"><span class="rr-k">Stack</span><span class="rr-v" style="color:var(--teal)">SK · Lucia · PG</span></div>
-			<div class="rr"><span class="rr-k">Uptime</span><span class="rr-v" style="color:var(--green)">99.9%</span></div>
+	<!-- Status strip -->
+	<div class="status-strip">
+		<div class="ss-item pink">
+			<span class="ss-dot"></span>
+			ghent, be
+		</div>
+		<div class="ss-item teal">
+			<span class="ss-dot"></span>
+			self-hosted
+		</div>
+		<div class="ss-item yellow">
+			<span class="ss-dot"></span>
+			operational
+		</div>
+		<div class="ss-item purple">
+			<span class="ss-dot"></span>
+			sk · lucia · pg
 		</div>
 	</div>
 
 </section>
 
-<!-- ═══════════════════════════════════
-     NAVIGATE
-════════════════════════════════════ -->
-<section class="navigate">
+<!-- NAVIGATE — two huge portals -->
+<section class="portals">
 
-	<div class="section-ornament">
-		<svg viewBox="0 0 800 30" fill="none" class="w-full">
-			<line x1="0" y1="15" x2="300" y2="15" stroke="#251808" stroke-width="1"/>
-			<path d="M308 15 L318 9 L328 15 L318 21 Z" fill="#6a4818" opacity="0.5"/>
-			<text x="340" y="20" font-family="'DM Mono'" font-size="10" fill="#6a4818" letter-spacing="6">NAVIGATE</text>
-			<path d="M472 15 L482 9 L492 15 L482 21 Z" fill="#6a4818" opacity="0.5"/>
-			<line x1="500" y1="15" x2="800" y2="15" stroke="#251808" stroke-width="1"/>
-		</svg>
-	</div>
+	<a href="/work" class="portal portal-work">
+		<div class="portal-noise"></div>
+		<div class="portal-num mono">01</div>
+		<div class="portal-badge badge-teal">public</div>
+		<h2 class="portal-title">Work</h2>
+		<p class="portal-desc">IT shortcuts, tool references & daily bookmarks.</p>
+		<div class="portal-enter">enter <span class="arr">↗</span></div>
+		<div class="portal-corner-tl"></div>
+		<div class="portal-corner-br"></div>
+		<!-- Big background letter -->
+		<div class="portal-letter">W</div>
+	</a>
 
-	<div class="nav-zones">
-
-		<a href="/work" class="nzone nzone-work">
-			<div class="nz-inner">
-				<div class="nz-top">
-					<span class="nz-num">I.</span>
-					<span class="nz-tag" style="color:var(--teal);border-color:var(--teal-dim)">Public</span>
-				</div>
-				<h2 class="nz-title">Work</h2>
-				<div class="nz-rule" style="background:var(--teal)"></div>
-				<p class="nz-desc">IT shortcuts, tool references & daily bookmarks for sysadmin work.</p>
-				<div class="nz-enter" style="color:var(--teal)">Enter →</div>
-			</div>
-			<div class="nz-glow" style="background:radial-gradient(ellipse at 50% 100%,rgba(56,184,184,0.15) 0%,transparent 65%)"></div>
-			<div class="nz-ghost">I</div>
-		</a>
-
-		<div class="nzone-divider">
-			<svg viewBox="0 0 20 400" fill="none">
-				<line x1="10" y1="0" x2="10" y2="160" stroke="#251808" stroke-width="1"/>
-				<circle cx="10" cy="170" r="4" stroke="#c8943a" stroke-width="0.75" fill="none" opacity="0.4"/>
-				<circle cx="10" cy="170" r="1.5" fill="#c8943a" opacity="0.4"/>
-				<line x1="10" y1="180" x2="10" y2="400" stroke="#251808" stroke-width="1"/>
-			</svg>
-		</div>
-
-		<a href="/homelab" class="nzone nzone-lab">
-			<div class="nz-inner">
-				<div class="nz-top">
-					<span class="nz-num">II.</span>
-					<span class="nz-tag" style="color:var(--amber);border-color:var(--amber-dim)">Restricted</span>
-				</div>
-				<h2 class="nz-title">Homelab</h2>
-				<div class="nz-rule" style="background:var(--amber)"></div>
-				<p class="nz-desc">Network topology, services & infrastructure. Ghent home setup.</p>
-				<div class="nz-enter" style="color:var(--amber)">Enter →</div>
-			</div>
-			<div class="nz-glow" style="background:radial-gradient(ellipse at 50% 100%,rgba(216,112,32,0.12) 0%,transparent 65%)"></div>
-			<div class="nz-ghost">II</div>
-		</a>
-
-	</div>
+	<a href="/homelab" class="portal portal-lab">
+		<div class="portal-noise"></div>
+		<div class="portal-num mono">02</div>
+		<div class="portal-badge badge-orange">restricted</div>
+		<h2 class="portal-title">Homelab</h2>
+		<p class="portal-desc">Network, services & infrastructure. Ghent.</p>
+		<div class="portal-enter">enter <span class="arr">↗</span></div>
+		<div class="portal-corner-tl"></div>
+		<div class="portal-corner-br"></div>
+		<div class="portal-letter">H</div>
+	</a>
 
 </section>
 
-<!-- ═══════════════════════════════════
-     DEPLOYED
-════════════════════════════════════ -->
+<!-- DEPLOYED — wild horizontal cards -->
 <section class="deployed">
-
-	<div class="section-ornament">
-		<svg viewBox="0 0 800 30" fill="none" class="w-full">
-			<line x1="0" y1="15" x2="285" y2="15" stroke="#251808" stroke-width="1"/>
-			<path d="M293 15 L303 9 L313 15 L303 21 Z" fill="#6a4818" opacity="0.5"/>
-			<text x="325" y="20" font-family="'DM Mono'" font-size="10" fill="#6a4818" letter-spacing="6">DEPLOYED</text>
-			<path d="M467 15 L477 9 L487 15 L477 21 Z" fill="#6a4818" opacity="0.5"/>
-			<line x1="495" y1="15" x2="800" y2="15" stroke="#251808" stroke-width="1"/>
-		</svg>
+	<div class="dep-header">
+		<span class="dep-line"></span>
+		<span class="dep-label mono">deployed</span>
+		<span class="dep-line"></span>
 	</div>
 
-	<div class="project-list">
+	<div class="dep-grid">
 
-		<a href="https://ovam-buddy.olfke.be" target="_blank" rel="noopener" class="project">
-			<div class="proj-num">01</div>
-			<div class="proj-body">
-				<div class="proj-meta">
-					<span class="proj-tag mono xs">Internal Tool</span>
-					<span class="proj-live mono xs" style="color:var(--teal)">● Live</span>
+		<a href="https://ovam-buddy.olfke.be" target="_blank" rel="noopener" class="dcard dc1">
+			<div class="dc-stripe"></div>
+			<div class="dc-body">
+				<div class="dc-top">
+					<span class="dc-tag mono">internal tool</span>
+					<span class="dc-live teal-text mono">● live</span>
 				</div>
-				<h3 class="proj-name">Ovam Buddy</h3>
-				<p class="proj-desc">MATIS waste management — quarterly OVAM CSV submissions.</p>
+				<h3 class="dc-name">Ovam Buddy</h3>
+				<p class="dc-desc">MATIS waste management — quarterly OVAM CSV submissions.</p>
+				<span class="dc-url mono">↗ ovam-buddy.olfke.be</span>
 			</div>
-			<div class="proj-link mono xs">↗ ovam-buddy.olfke.be</div>
-			<div class="proj-rule" style="background:var(--teal)"></div>
 		</a>
 
-		<div class="proj-divider"></div>
-
-		<a href="https://bday-m.olfke.be" target="_blank" rel="noopener" class="project">
-			<div class="proj-num">02</div>
-			<div class="proj-body">
-				<div class="proj-meta">
-					<span class="proj-tag mono xs">Private</span>
-					<span class="proj-live mono xs" style="color:var(--gold)">● Live</span>
+		<a href="https://bday-m.olfke.be" target="_blank" rel="noopener" class="dcard dc2">
+			<div class="dc-stripe"></div>
+			<div class="dc-body">
+				<div class="dc-top">
+					<span class="dc-tag mono">private</span>
+					<span class="dc-live yellow-text mono">● live</span>
 				</div>
-				<h3 class="proj-name">Hotel 505</h3>
-				<p class="proj-desc">A birthday gift. A letter. A hope.</p>
+				<h3 class="dc-name">Hotel 505</h3>
+				<p class="dc-desc">A birthday gift. A letter. A hope.</p>
+				<span class="dc-url mono">↗ bday-m.olfke.be</span>
 			</div>
-			<div class="proj-link mono xs">↗ bday-m.olfke.be</div>
-			<div class="proj-rule" style="background:var(--gold)"></div>
 		</a>
+
+		<div class="dcard dc3 dc-empty">
+			<div class="dc-stripe"></div>
+			<div class="dc-body">
+				<div class="dc-top">
+					<span class="dc-tag mono">pending</span>
+				</div>
+				<h3 class="dc-name" style="opacity:0.2">???</h3>
+				<p class="dc-desc" style="opacity:0.2">next transmission loading...</p>
+			</div>
+		</div>
 
 	</div>
-
 </section>
 
-<!-- Footer -->
+<!-- FOOTER -->
 <footer>
-	<div class="footer-ornament">
-		<svg viewBox="0 0 600 16" fill="none">
-			<line x1="0" y1="8" x2="250" y2="8" stroke="#251808" stroke-width="0.75"/>
-			<circle cx="258" cy="8" r="2" fill="#6a4818" opacity="0.5"/>
-			<line x1="266" y1="8" x2="334" y2="8" stroke="#251808" stroke-width="0.75"/>
-			<circle cx="342" cy="8" r="2" fill="#6a4818" opacity="0.5"/>
-			<line x1="350" y1="8" x2="600" y2="8" stroke="#251808" stroke-width="0.75"/>
-		</svg>
+	<span class="mono" style="font-size:0.6rem;color:var(--text-dim)">olfke.be // {new Date().getFullYear()}</span>
+	<div class="footer-dots">
+		{#each colors as c}
+			<span class="fdot" style="background:{c}"></span>
+		{/each}
 	</div>
-	<div class="footer-text">
-		<span>Olfke.be — Ghent, Belgium</span>
-		<span class="mono xs dim">SK · Lucia · Drizzle · Docker</span>
-	</div>
+	<span class="mono" style="font-size:0.6rem;color:var(--text-dim)">sk · lucia · drizzle</span>
 </footer>
 
 <style>
-/* ── Utilities ── */
 .mono { font-family: var(--font-mono); }
-.xs   { font-size: 0.6rem; letter-spacing: 0.1em; }
-.dim  { color: var(--text-dim); }
-.w-full { width: 100%; }
 
-/* ── Atmosphere ── */
-.atmo-fire-left {
-	position: fixed; top: -10vh; left: -15vw;
-	width: 60vw; height: 70vh;
-	background: radial-gradient(ellipse, rgba(160,80,10,0.16) 0%, rgba(100,40,5,0.06) 40%, transparent 70%);
-	pointer-events: none; z-index: 0;
+/* ── Blobs ── */
+.blob {
+	position: fixed; border-radius: 50%;
+	filter: blur(80px); pointer-events: none; z-index: 0;
+	animation: drift 20s ease-in-out infinite alternate;
 }
-.atmo-fire-right {
-	position: fixed; top: 20vh; right: -20vw;
-	width: 50vw; height: 60vh;
-	background: radial-gradient(ellipse, rgba(120,60,8,0.1) 0%, transparent 65%);
-	pointer-events: none; z-index: 0;
+.b1 { width: 600px; height: 600px; top: -200px; left: -200px;  background: rgba(155,77,255,0.12); animation-duration: 25s; }
+.b2 { width: 500px; height: 500px; top: 20vh;   right: -150px; background: rgba(255,61,138,0.09); animation-duration: 18s; animation-delay: -5s; }
+.b3 { width: 400px; height: 400px; bottom: 10vh; left: 10vw;   background: rgba(0,229,204,0.08); animation-duration: 22s; animation-delay: -10s; }
+.b4 { width: 300px; height: 300px; top: 50vh;   left: 30vw;   background: rgba(255,230,0,0.06);  animation-duration: 30s; animation-delay: -8s; }
+.b5 { width: 350px; height: 350px; bottom: 20vh; right: 20vw;  background: rgba(57,255,122,0.07); animation-duration: 20s; animation-delay: -15s; }
+@keyframes drift {
+	0%   { transform: translate(0,0) scale(1); }
+	33%  { transform: translate(40px,-30px) scale(1.05); }
+	66%  { transform: translate(-20px,50px) scale(0.95); }
+	100% { transform: translate(30px,20px) scale(1.02); }
 }
-.atmo-green-bottom {
-	position: fixed; bottom: -15vh; left: 20vw;
-	width: 60vw; height: 50vh;
-	background: radial-gradient(ellipse, rgba(20,120,60,0.08) 0%, transparent 65%);
-	pointer-events: none; z-index: 0;
-}
-.atmo-vignette {
-	position: fixed; inset: 0;
-	background: radial-gradient(ellipse at 50% 40%, transparent 25%, rgba(5,3,1,0.85) 100%);
-	pointer-events: none; z-index: 0;
-}
-
-/* ── Corner chrome ── */
-.corner { position: fixed; width: 24px; height: 24px; z-index: 300; pointer-events: none; }
-.corner.tl { top: 12px; left: 12px;   border-top:    1px solid var(--gold-dim); border-left:  1px solid var(--gold-dim); }
-.corner.tr { top: 12px; right: 12px;  border-top:    1px solid var(--gold-dim); border-right: 1px solid var(--gold-dim); }
-.corner.bl { bottom: 12px; left: 12px;  border-bottom: 1px solid var(--gold-dim); border-left:  1px solid var(--gold-dim); }
-.corner.br { bottom: 12px; right: 12px; border-bottom: 1px solid var(--gold-dim); border-right: 1px solid var(--gold-dim); }
 
 /* ── Nav ── */
 nav {
 	position: fixed; top: 0; left: 0; right: 0; z-index: 200;
-	display: grid; grid-template-columns: 1fr auto 1fr;
-	align-items: center;
-	padding: 0.9rem 2.5rem;
-	border-bottom: 1px solid var(--border);
-	background: rgba(9,6,3,0.92);
-	backdrop-filter: blur(24px);
+	display: flex; justify-content: space-between; align-items: center;
+	padding: 1rem 2rem;
+	background: rgba(6,6,10,0.85);
+	backdrop-filter: blur(20px);
+	border-bottom: 1px solid rgba(255,255,255,0.04);
 }
 .brand {
-	font-family: var(--font-display); font-size: 1rem; font-weight: 600;
-	letter-spacing: 0.12em; color: var(--gold);
-	transition: color 0.2s, text-shadow 0.3s;
+	font-family: var(--font-display); font-weight: 800;
+	font-size: 1rem; letter-spacing: 0.08em;
+	background: linear-gradient(90deg, var(--purple), var(--pink));
+	-webkit-background-clip: text; -webkit-text-fill-color: transparent;
 }
-.brand:hover { color: var(--gold-bright); text-shadow: 0 0 20px rgba(200,148,58,0.4); }
-.nav-center {
-	display: flex; align-items: center; gap: 0.5rem;
-	font-family: var(--font-mono); font-size: 0.55rem;
-	letter-spacing: 0.15em; color: var(--text-dim);
+.nav-pill {
+	display: flex; align-items: center; gap: 0.4rem;
+	font-family: var(--font-mono); font-size: 0.58rem;
+	letter-spacing: 0.12em; color: var(--text-dim);
+	border: 1px solid rgba(57,255,122,0.2);
+	padding: 0.2rem 0.6rem;
+	border-radius: 20px;
 }
-.nav-dot {
-	width: 5px; height: 5px; border-radius: 50; flex-shrink: 0;
-	background: var(--green); box-shadow: 0 0 8px var(--green);
-	animation: blink 2.5s infinite;
-}
+.ndot { width: 5px; height: 5px; border-radius: 50%; background: var(--green); box-shadow: 0 0 8px var(--green); animation: blink 2s infinite; }
 @keyframes blink { 0%,100%{opacity:1;} 50%{opacity:0.2;} }
-.nav-links { display: flex; gap: 2rem; align-items: center; justify-content: flex-end; }
-.nav-links a, .nav-btn {
-	font-family: var(--font-serif); font-size: 0.9rem;
-	letter-spacing: 0.08em; color: var(--text-muted);
-	background: none; border: none; cursor: pointer;
-	transition: color 0.2s; padding: 0; font-style: italic;
+.nav-r { display: flex; gap: 1.5rem; align-items: center; }
+.nav-r a, .nav-btn {
+	font-family: var(--font-display); font-weight: 600; font-size: 0.75rem;
+	letter-spacing: 0.1em; color: var(--text-muted);
+	background: none; border: none; cursor: pointer; padding: 0;
+	transition: color 0.2s;
 }
-.nav-links a:hover, .nav-btn:hover { color: var(--gold); }
-.nav-green { color: var(--green) !important; }
+.nav-r a:hover, .nav-btn:hover { color: var(--text); }
+.hl-link { color: var(--teal) !important; }
 
 /* ── HERO ── */
 .hero {
 	position: relative; z-index: 1;
 	min-height: 100vh;
-	display: flex; align-items: center; justify-content: center;
-	flex-direction: column;
-	border-bottom: 1px solid var(--border);
+	display: flex; flex-direction: column;
+	align-items: center; justify-content: center;
 	overflow: hidden;
+	padding: 5rem 2rem 3rem;
 }
 
-.hero-bg {
-	position: absolute; inset: 0;
-	display: flex; align-items: center; justify-content: center;
-	pointer-events: none;
+/* Rotating rings */
+.ring {
+	position: absolute; border-radius: 50%;
+	border: 1px solid; pointer-events: none;
+	animation: spin linear infinite;
 }
-.hero-mandala {
-	width: min(100vw, 900px);
-	height: min(100vw, 900px);
-	opacity: 1;
-	animation: slow-spin 180s linear infinite;
+.r1 { width: 700px; height: 700px; border-color: rgba(155,77,255,0.08); animation-duration: 60s; top:50%; left:50%; transform:translate(-50%,-50%); }
+.r2 { width: 500px; height: 500px; border-color: rgba(0,229,204,0.07);  animation-duration: 40s; animation-direction: reverse; top:50%; left:50%; transform:translate(-50%,-50%); }
+.r3 { width: 300px; height: 300px; border-color: rgba(255,230,0,0.06);  animation-duration: 25s; top:50%; left:50%; transform:translate(-50%,-50%); }
+@keyframes spin { from{transform:translate(-50%,-50%) rotate(0deg);} to{transform:translate(-50%,-50%) rotate(360deg);} }
+
+/* Floating labels */
+.label-float {
+	position: absolute; font-size: 0.52rem; letter-spacing: 0.2em;
+	color: var(--text-dim); pointer-events: none;
+	animation: floaty 8s ease-in-out infinite alternate;
 }
-@keyframes slow-spin {
-	from { transform: rotate(0deg); }
-	to   { transform: rotate(360deg); }
+.lf1 { top: 15%; left: 8%;  animation-delay: 0s; }
+.lf2 { top: 12%; right: 10%; animation-delay: -2s; color: rgba(155,77,255,0.3); }
+.lf3 { bottom: 22%; left: 5%; animation-delay: -4s; }
+.lf4 { bottom: 18%; right: 8%; animation-delay: -6s; color: rgba(0,229,204,0.3); }
+@keyframes floaty {
+	0%   { transform: translateY(0px); opacity: 0.4; }
+	100% { transform: translateY(-12px); opacity: 0.8; }
 }
 
-.hero-content {
+/* TITLE — the main event */
+.hero-title-wrap {
 	position: relative; z-index: 2;
 	display: flex; flex-direction: column;
-	align-items: center; text-align: center;
-	padding: 8rem 2rem 6rem;
-	gap: 1.5rem;
+	align-items: center; line-height: 0.82;
+	margin-bottom: 2rem;
 }
+.ht-row1, .ht-row2 { display: flex; align-items: baseline; }
+.ht-row1 span, .ht-row2 span {
+	font-family: var(--font-display); font-weight: 800;
+	font-size: clamp(5rem, 15vw, 13rem);
+	letter-spacing: -0.02em;
+	transition: color 0.3s, text-shadow 0.3s;
+	cursor: default;
+}
+/* Each letter gets its own color */
+.ht-o  { color: var(--pink);   }
+.ht-l  { color: var(--purple); }
+.ht-f  { color: var(--teal);   }
+.ht-k  { color: var(--yellow); }
+.ht-e  { color: var(--orange); }
+.ht-dot{ color: rgba(255,255,255,0.15); font-weight: 300; }
+.ht-b  { color: var(--green);  }
+.ht-e2 { color: var(--blue);   }
 
-.hero-eyebrow {
-	display: flex; align-items: center; gap: 1rem;
-	width: 100%; max-width: 500px;
-}
-.eyebrow-ornament { flex: 1; }
-.eyebrow-text {
-	font-family: var(--font-serif); font-style: italic;
-	font-size: 0.78rem; letter-spacing: 0.18em;
-	color: var(--text-dim); white-space: nowrap;
-}
+/* Hover: letters glow */
+.ht-o:hover  { text-shadow: 0 0 40px var(--pink),   0 0 80px rgba(255,61,138,0.3); }
+.ht-l:hover  { text-shadow: 0 0 40px var(--purple), 0 0 80px rgba(155,77,255,0.3); }
+.ht-f:hover  { text-shadow: 0 0 40px var(--teal),   0 0 80px rgba(0,229,204,0.3); }
+.ht-k:hover  { text-shadow: 0 0 40px var(--yellow), 0 0 80px rgba(255,230,0,0.3); }
+.ht-e:hover  { text-shadow: 0 0 40px var(--orange), 0 0 80px rgba(255,107,53,0.3); }
+.ht-b:hover  { text-shadow: 0 0 40px var(--green),  0 0 80px rgba(57,255,122,0.3); }
+.ht-e2:hover { text-shadow: 0 0 40px var(--blue),   0 0 80px rgba(61,139,255,0.3); }
 
-.hero-title {
-	line-height: 0.88;
-	display: flex; align-items: flex-end;
-	gap: 0.05em;
+.hero-sub {
+	position: relative; z-index: 2;
+	display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap; justify-content: center;
+	font-family: var(--font-body); font-size: 0.85rem; font-weight: 300;
+	color: var(--text-muted); letter-spacing: 0.05em;
+	margin-bottom: 2.5rem;
 }
-.ht-main {
-	font-family: var(--font-display); font-weight: 700;
-	font-size: clamp(5rem, 14vw, 12rem);
-	color: var(--text);
-	letter-spacing: 0.04em;
-	text-shadow: 0 4px 40px rgba(0,0,0,0.8), 0 0 80px rgba(200,148,58,0.06);
-}
-.ht-tld {
-	font-family: var(--font-display); font-weight: 300;
-	font-size: clamp(3.5rem, 10vw, 9rem);
-	color: var(--gold);
-	letter-spacing: 0.04em;
-	text-shadow: 0 0 40px rgba(200,148,58,0.5), 0 0 80px rgba(200,148,58,0.2);
-	padding-bottom: 0.08em;
-}
+.hs-sep  { color: var(--purple); opacity: 0.5; }
+.hs-dash { color: var(--text-dim); }
 
-.hero-subtitle {
-	font-family: var(--font-serif); font-size: 1.1rem;
-	color: var(--text-muted); letter-spacing: 0.06em;
-	font-style: italic;
+/* Status strip */
+.status-strip {
+	position: relative; z-index: 2;
+	display: flex; gap: 0.75rem; flex-wrap: wrap; justify-content: center;
 }
+.ss-item {
+	display: flex; align-items: center; gap: 0.4rem;
+	font-family: var(--font-mono); font-size: 0.58rem; letter-spacing: 0.1em;
+	padding: 0.3rem 0.8rem; border: 1px solid;
+	border-radius: 2px;
+}
+.ss-item .ss-dot { width: 5px; height: 5px; border-radius: 50%; }
+.pink   { color: var(--pink);   border-color: rgba(255,61,138,0.25);  background: rgba(255,61,138,0.05); }
+.pink   .ss-dot { background: var(--pink); }
+.teal   { color: var(--teal);   border-color: rgba(0,229,204,0.25);   background: rgba(0,229,204,0.05); }
+.teal   .ss-dot { background: var(--teal); }
+.yellow { color: var(--yellow); border-color: rgba(255,230,0,0.25);   background: rgba(255,230,0,0.05); }
+.yellow .ss-dot { background: var(--yellow); box-shadow: 0 0 6px var(--yellow); animation: blink 2s infinite; }
+.purple { color: var(--purple); border-color: rgba(155,77,255,0.25);  background: rgba(155,77,255,0.05); }
+.purple .ss-dot { background: var(--purple); }
 
-.hero-divider { width: 100%; max-width: 600px; }
-.divider-svg { width: 100%; }
-
-.hero-meta {
-	display: flex; align-items: center; gap: 1rem;
-	font-family: var(--font-serif); font-size: 0.85rem;
-	color: var(--text-muted); letter-spacing: 0.08em;
-}
-.meta-item { display: flex; align-items: center; gap: 0.4rem; }
-.meta-sep  { color: var(--gold-dim); }
-.meta-dot  { width: 6px; height: 6px; border-radius: 50%; }
-.green-dot { background: var(--green); box-shadow: 0 0 8px var(--green); animation: blink 2.5s infinite; }
-.teal-dot  { background: var(--teal); }
-.gold-dot  { background: var(--gold); }
-.meta-label { font-style: italic; }
-
-/* Side readout */
-.hero-readout {
-	position: absolute; right: 3rem; top: 50%;
-	transform: translateY(-50%);
-	z-index: 3;
-	border: 1px solid var(--border-mid);
-	border-top: 2px solid var(--gold-dim);
-	background: rgba(12,8,4,0.85);
-	backdrop-filter: blur(8px);
-	min-width: 220px;
-}
-.readout-title {
-	padding: 0.5rem 1rem; border-bottom: 1px solid var(--border);
-	color: var(--gold-dim); letter-spacing: 0.15em;
-}
-.readout-rows { display: flex; flex-direction: column; }
-.rr {
-	display: flex; justify-content: space-between; align-items: center;
-	padding: 0.45rem 1rem; border-bottom: 1px solid var(--border); gap: 1rem;
-}
-.rr:last-child { border-bottom: none; }
-.rr-k { font-family: var(--font-mono); font-size: 0.5rem; letter-spacing: 0.15em; color: var(--text-dim); flex-shrink: 0; }
-.rr-v { font-family: var(--font-mono); font-size: 0.56rem; letter-spacing: 0.06em; color: var(--text-muted); text-align: right; }
-
-/* ── NAVIGATE ── */
-.navigate {
+/* ── PORTALS ── */
+.portals {
 	position: relative; z-index: 1;
-	padding: 3rem 0 0;
-	border-bottom: 1px solid var(--border);
+	display: grid; grid-template-columns: 1fr 1fr;
+	min-height: 420px;
+	border-top: 1px solid rgba(255,255,255,0.04);
 }
-.section-ornament {
-	padding: 0 3rem; margin-bottom: 2rem;
-}
-.nav-zones {
-	display: grid; grid-template-columns: 1fr 20px 1fr;
-	min-height: 380px;
-}
-.nzone {
+.portal {
 	position: relative; overflow: hidden;
-	padding: 2.5rem 3rem;
-	display: flex; flex-direction: column;
+	padding: 3rem;
+	display: flex; flex-direction: column; gap: 1rem;
 	transition: background 0.4s;
+	border-right: 1px solid rgba(255,255,255,0.04);
 }
-.nzone:hover { background: rgba(20,14,8,0.6); }
-.nz-inner { display: flex; flex-direction: column; gap: 0.8rem; position: relative; z-index: 2; }
-.nz-top { display: flex; justify-content: space-between; align-items: center; }
-.nz-num {
-	font-family: var(--font-display); font-size: 1.2rem;
-	color: var(--text-dim); letter-spacing: 0.1em;
-}
-.nz-tag {
-	font-family: var(--font-mono); font-size: 0.5rem;
-	letter-spacing: 0.12em; padding: 0.2rem 0.55rem; border: 1px solid;
-}
-.nz-title {
-	font-family: var(--font-display); font-weight: 700;
-	font-size: clamp(3rem, 6vw, 6rem);
-	letter-spacing: 0.04em; line-height: 1;
-	color: var(--text); transition: color 0.3s;
-}
-.nzone-work:hover .nz-title { color: var(--teal); }
-.nzone-lab:hover  .nz-title { color: var(--amber); }
-.nz-rule { height: 1px; width: 0; transition: width 0.5s cubic-bezier(0.4,0,0.2,1); opacity: 0.6; }
-.nzone:hover .nz-rule { width: 100%; }
-.nz-desc {
-	font-family: var(--font-serif); font-size: 0.95rem; font-style: italic;
-	color: var(--text-muted); line-height: 1.7; max-width: 400px;
-}
-.nz-enter {
-	font-family: var(--font-serif); font-style: italic; font-size: 1rem;
-	letter-spacing: 0.08em; margin-top: auto;
-	transition: letter-spacing 0.3s, color 0.3s;
-}
-.nzone:hover .nz-enter { letter-spacing: 0.18em; }
-.nz-glow {
+.portal:last-child { border-right: none; }
+
+.portal-noise {
 	position: absolute; inset: 0; pointer-events: none;
 	opacity: 0; transition: opacity 0.4s;
 }
-.nzone:hover .nz-glow { opacity: 1; }
-.nz-ghost {
+.portal-work .portal-noise { background: radial-gradient(ellipse at 30% 70%, rgba(0,229,204,0.12) 0%, transparent 60%); }
+.portal-lab  .portal-noise { background: radial-gradient(ellipse at 30% 70%, rgba(255,107,53,0.1)  0%, transparent 60%); }
+.portal:hover .portal-noise { opacity: 1; }
+.portal:hover { background: rgba(255,255,255,0.015); }
+
+.portal-num {
+	font-size: 0.62rem; color: var(--text-dim); letter-spacing: 0.15em;
+}
+.portal-badge {
+	display: inline-block; align-self: flex-start;
+	font-family: var(--font-mono); font-size: 0.5rem; letter-spacing: 0.12em;
+	padding: 0.22rem 0.6rem; border: 1px solid;
+}
+.badge-teal   { color: var(--teal);   border-color: rgba(0,229,204,0.3);  background: rgba(0,229,204,0.06); }
+.badge-orange { color: var(--orange); border-color: rgba(255,107,53,0.3); background: rgba(255,107,53,0.06); }
+
+.portal-title {
+	font-family: var(--font-display); font-weight: 800;
+	font-size: clamp(3rem, 6vw, 6rem);
+	letter-spacing: -0.01em; line-height: 1;
+	color: var(--text); transition: 0.3s;
+	margin-top: auto;
+}
+.portal-work:hover .portal-title { color: var(--teal); text-shadow: 0 0 40px rgba(0,229,204,0.3); }
+.portal-lab:hover  .portal-title { color: var(--orange); text-shadow: 0 0 40px rgba(255,107,53,0.3); }
+
+.portal-desc {
+	font-family: var(--font-body); font-size: 0.85rem; font-weight: 300;
+	color: var(--text-muted); line-height: 1.65;
+}
+.portal-enter {
+	font-family: var(--font-mono); font-size: 0.6rem; letter-spacing: 0.15em;
+	color: var(--text-dim); transition: 0.3s;
+	display: flex; align-items: center; gap: 0.4rem;
+}
+.portal-work:hover .portal-enter { color: var(--teal); }
+.portal-lab:hover  .portal-enter { color: var(--orange); }
+.arr { transition: transform 0.3s; }
+.portal:hover .arr { transform: translate(3px,-3px); }
+
+/* Corner brackets */
+.portal-corner-tl, .portal-corner-br {
+	position: absolute; width: 16px; height: 16px; pointer-events: none;
+	transition: opacity 0.3s; opacity: 0;
+}
+.portal-corner-tl { top: 1rem; left: 1rem; border-top: 1px solid; border-left: 1px solid; }
+.portal-corner-br { bottom: 1rem; right: 1rem; border-bottom: 1px solid; border-right: 1px solid; }
+.portal-work .portal-corner-tl, .portal-work .portal-corner-br { border-color: var(--teal); }
+.portal-lab  .portal-corner-tl, .portal-lab  .portal-corner-br { border-color: var(--orange); }
+.portal:hover .portal-corner-tl, .portal:hover .portal-corner-br { opacity: 1; }
+
+.portal-letter {
 	position: absolute; bottom: -3rem; right: -1rem;
-	font-family: var(--font-display); font-weight: 700;
-	font-size: 16rem; line-height: 1; letter-spacing: -0.04em;
-	color: var(--text); opacity: 0.018;
-	pointer-events: none; transition: opacity 0.4s;
+	font-family: var(--font-display); font-weight: 800;
+	font-size: 18rem; line-height: 1; letter-spacing: -0.04em;
+	color: var(--text); opacity: 0.02; pointer-events: none;
+	transition: opacity 0.4s;
 }
-.nzone:hover .nz-ghost { opacity: 0.04; }
-.nzone-divider {
-	display: flex; justify-content: center;
-	padding: 1rem 0;
-}
+.portal:hover .portal-letter { opacity: 0.045; }
 
 /* ── DEPLOYED ── */
 .deployed {
 	position: relative; z-index: 1;
-	padding: 3rem 0 0;
-	border-bottom: 1px solid var(--border);
+	padding: 3rem 2rem;
+	border-top: 1px solid rgba(255,255,255,0.04);
 }
-.project-list {
-	display: flex; flex-direction: column;
+.dep-header {
+	display: flex; align-items: center; gap: 1rem;
+	margin-bottom: 2rem;
 }
-.project {
-	display: grid; grid-template-columns: 80px 1fr auto;
-	align-items: center; gap: 2rem;
-	padding: 1.75rem 3rem;
+.dep-line { flex: 1; height: 1px; background: rgba(255,255,255,0.04); }
+.dep-label { font-size: 0.58rem; letter-spacing: 0.3em; color: var(--text-dim); }
+
+.dep-grid {
+	display: grid; grid-template-columns: repeat(3,1fr);
+	gap: 3px;
+}
+.dcard {
 	position: relative; overflow: hidden;
-	transition: background 0.3s;
-	border-top: 1px solid var(--border);
+	background: rgba(255,255,255,0.02);
+	display: flex; flex-direction: column;
+	transition: background 0.25s;
+	min-height: 200px;
 }
-.project:hover { background: rgba(20,14,8,0.5); }
-.proj-rule {
-	position: absolute; bottom: 0; left: 0; right: 0;
-	height: 1px; width: 0;
-	transition: width 0.5s cubic-bezier(0.4,0,0.2,1);
-	opacity: 0.5;
+.dcard:not(.dc-empty):hover { background: rgba(255,255,255,0.04); }
+
+.dc-stripe {
+	height: 2px; flex-shrink: 0;
 }
-.project:hover .proj-rule { width: 100%; }
-.proj-num {
-	font-family: var(--font-display); font-size: 2rem; font-weight: 300;
-	color: var(--text-dim); letter-spacing: 0.08em;
-}
-.proj-body { display: flex; flex-direction: column; gap: 0.4rem; }
-.proj-meta { display: flex; gap: 1rem; align-items: center; }
-.proj-tag { color: var(--text-dim); }
-.proj-name {
-	font-family: var(--font-display); font-weight: 600;
-	font-size: 1.8rem; letter-spacing: 0.04em;
+.dc1 .dc-stripe { background: linear-gradient(90deg, var(--teal), transparent); }
+.dc2 .dc-stripe { background: linear-gradient(90deg, var(--yellow), transparent); }
+.dc3 .dc-stripe { background: linear-gradient(90deg, rgba(255,255,255,0.1), transparent); }
+
+.dc-body { flex:1; padding: 1.5rem; display: flex; flex-direction: column; gap: 0.5rem; }
+.dc-top  { display: flex; justify-content: space-between; }
+.dc-tag  { font-size: 0.5rem; letter-spacing: 0.12em; color: var(--text-dim); }
+.teal-text   { color: var(--teal); }
+.yellow-text { color: var(--yellow); }
+.dc-name {
+	font-family: var(--font-display); font-weight: 700;
+	font-size: 1.5rem; letter-spacing: 0.02em;
 	color: var(--text); transition: color 0.2s;
 }
-.project:hover .proj-name { color: var(--gold); }
-.proj-desc {
-	font-family: var(--font-serif); font-style: italic;
-	font-size: 0.9rem; color: var(--text-muted); line-height: 1.5;
-}
-.proj-link {
-	color: var(--text-dim); transition: color 0.2s; white-space: nowrap;
-}
-.project:hover .proj-link { color: var(--gold); }
-.proj-divider { border-top: 1px solid var(--border); }
+.dc1:hover .dc-name { color: var(--teal); }
+.dc2:hover .dc-name { color: var(--yellow); }
+.dc-desc { font-family: var(--font-body); font-size: 0.78rem; color: var(--text-muted); line-height: 1.6; flex: 1; }
+.dc-url  { font-size: 0.55rem; letter-spacing: 0.06em; color: var(--text-dim); transition: color 0.2s; }
+.dc1:hover .dc-url { color: var(--teal); }
+.dc2:hover .dc-url { color: var(--yellow); }
+.dc-empty { opacity: 0.4; }
 
-/* ── Footer ── */
+/* ── FOOTER ── */
 footer {
 	position: relative; z-index: 1;
-	display: flex; flex-direction: column; align-items: center;
-	gap: 0.75rem; padding: 2rem 2.5rem;
+	display: flex; justify-content: space-between; align-items: center;
+	padding: 1.25rem 2rem;
+	border-top: 1px solid rgba(255,255,255,0.04);
 }
-.footer-ornament { width: 100%; max-width: 600px; }
-.footer-text {
-	display: flex; justify-content: space-between;
-	width: 100%; max-width: 600px;
-	font-family: var(--font-serif); font-size: 0.8rem;
-	letter-spacing: 0.1em; color: var(--text-dim); font-style: italic;
-}
+.footer-dots { display: flex; gap: 6px; align-items: center; }
+.fdot { width: 6px; height: 6px; border-radius: 50%; opacity: 0.5; }
 
 /* ── Responsive ── */
-@media (max-width: 800px) {
-	.nav-zones { grid-template-columns: 1fr; }
-	.nzone-divider { display: none; }
-	.hero-readout { display: none; }
-	.hero-content { padding: 7rem 1.5rem 4rem; }
-	.project { grid-template-columns: 60px 1fr; }
-	.proj-link { display: none; }
-	nav { grid-template-columns: 1fr 1fr; padding: 0.9rem 1.5rem; }
-	.nav-center { display: none; }
-	.section-ornament { padding: 0 1.5rem; }
-	.nzone { padding: 2rem 1.5rem; }
+@media (max-width: 768px) {
+	.portals  { grid-template-columns: 1fr; }
+	.dep-grid { grid-template-columns: 1fr; }
+	.hero-title-wrap { gap: 0; }
+	.lf3,.lf4 { display: none; }
 }
 </style>
