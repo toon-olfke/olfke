@@ -21,7 +21,7 @@ export const actions: Actions = {
 		const password = data.get('password');
 
 		if (typeof username !== 'string' || typeof password !== 'string') {
-			return fail(400, { error: 'Invalid input.' });
+			return fail(400, { error: 'Invalid credentials.' });
 		}
 
 		const [user] = await db
@@ -30,12 +30,22 @@ export const actions: Actions = {
 			.where(eq(userTable.username, username.toLowerCase().trim()));
 
 		if (!user) {
-			// Timing-safe: still verify even if no user found
-			await argon2.verify('$argon2id$v=19$m=65536,t=3,p=4$fake$fake', 'fake');
+			// Timing-safe: still hash even if no user found
+			try {
+				await argon2.verify('$argon2id$v=19$m=65536,t=3,p=4$dGVzdHNhbHR2YWx1ZQ$fake', 'fake');
+			} catch {
+				// expected to fail
+			}
 			return fail(400, { error: 'Invalid credentials.' });
 		}
 
-		const valid = await argon2.verify(user.passwordHash, password);
+		let valid = false;
+		try {
+			valid = await argon2.verify(user.passwordHash, password);
+		} catch {
+			return fail(400, { error: 'Invalid credentials.' });
+		}
+
 		if (!valid) {
 			return fail(400, { error: 'Invalid credentials.' });
 		}
