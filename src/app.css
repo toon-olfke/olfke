@@ -1,25 +1,24 @@
-@import url("https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=Syne+Mono&family=Space+Grotesk:wght@300;400;500;600;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:ital,wght@0,200;0,300;0,400;0,500;1,300&family=DM+Mono:wght@300;400&display=swap");
 
 :root {
-  --bg: #06060a;
+  --cream: #f5f0e8;
+  --warm: #ede5d8;
+  --paper: #e8dfd0;
+  --wood: #c17f4a;
+  --wood-dk: #8b5a2b;
+  --wood-lt: #dba876;
+  --char: #1a1612;
+  --char-mid: #3d3530;
+  --char-lt: #7a6f65;
+  --orange: #d95f2b;
+  --teal: #2a7c6f;
+  --mustard: #c8980a;
+  --red: #b83232;
+  --sage: #5a7a5a;
 
-  --pink: #ff3d8a;
-  --purple: #9b4dff;
-  --teal: #00e5cc;
-  --yellow: #ffe600;
-  --orange: #ff6b35;
-  --green: #39ff7a;
-  --blue: #3d8bff;
-
-  --text: #f0eef8;
-  --text-muted: #7a7890;
-  --text-dim: #2a2838;
-
-  --border: #14121e;
-
-  --font-display: "Syne", sans-serif;
-  --font-mono: "Syne Mono", monospace;
-  --font-body: "Space Grotesk", sans-serif;
+  --font-display: "DM Serif Display", Georgia, serif;
+  --font-body: "DM Sans", system-ui, sans-serif;
+  --font-mono: "DM Mono", monospace;
 }
 
 *,
@@ -32,23 +31,27 @@
 html {
   font-size: 16px;
   -webkit-font-smoothing: antialiased;
+  scroll-behavior: smooth;
 }
 
 body {
-  background: var(--bg);
-  color: var(--text);
+  background: var(--cream);
+  color: var(--char);
   font-family: var(--font-body);
   min-height: 100vh;
-  overflow-x: hidden;
 }
 
 a {
   color: inherit;
   text-decoration: none;
 }
+
 ::-webkit-scrollbar {
-  width: 3px;
+  width: 4px;
+}
+::-webkit-scrollbar-track {
+  background: var(--warm);
 }
 ::-webkit-scrollbar-thumb {
-  background: var(--purple);
+  background: var(--wood);
 }

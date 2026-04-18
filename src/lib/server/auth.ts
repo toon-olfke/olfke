@@ -1,4 +1,3 @@
-import "dotenv/config";
 import { Lucia } from "lucia";
 import { DrizzlePostgreSQLAdapter } from "@lucia-auth/adapter-drizzle";
 import { db } from "./db";
@@ -8,6 +7,7 @@ const adapter = new DrizzlePostgreSQLAdapter(db, sessionTable, userTable);
 
 export const lucia = new Lucia(adapter, {
   sessionCookie: {
+    name: "olfke_session",
     attributes: {
       secure: process.env.NODE_ENV === "production",
     },
