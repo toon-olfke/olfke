@@ -1,52 +1,51 @@
-@import url("https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;400;500;600;700&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400;1,600&family=Cormorant+SC:wght@300;400;500;600;700&family=DM+Mono:wght@300;400;500&display=swap");
 
 :root {
-  /* Base — dark slate, not warm brown, not cold black */
-  --bg: #08090c;
-  --bg-mid: #0d0f14;
-  --bg-card: #111318;
-  --bg-card2: #161920;
-  --bg-lift: #1e2228;
+  /* Warm sepia/parchment base */
+  --bg: #09060300;
+  --bg-real: #090603;
+  --bg-warm: #0f0a05;
+  --bg-card: #120d07;
+  --bg-card2: #181008;
+  --bg-lift: #221508;
 
-  /* Borders */
-  --border: #1e2230;
-  --border-mid: #2a2f40;
-  --border-hi: #3a4055;
+  /* Borders — warm, aged */
+  --border: #251808;
+  --border-mid: #352208;
+  --border-hi: #4a3010;
 
-  /* Text */
-  --text: #d8dce8;
-  --text-muted: #7a8099;
-  --text-dim: #3a3f52;
+  /* Text — parchment tones */
+  --text: #e8d8b0;
+  --text-muted: #9a8460;
+  --text-dim: #4a3818;
 
-  /* Green — soul energy, primary accent */
-  --green: #3dffa0;
-  --green-mid: #1a8a55;
-  --green-dim: #0a3a22;
+  /* Gold — primary, warm */
+  --gold: #c8943a;
+  --gold-bright: #e8b84a;
+  --gold-dim: #6a4818;
+  --gold-faint: #1e1004;
 
-  /* Gold — secondary warm accent */
-  --gold: #c8a84a;
-  --gold-dim: #6a5820;
-  --gold-faint: #1e1808;
+  /* Green — soul energy, secondary */
+  --green: #3ae8a0;
+  --green-mid: #1a8050;
+  --green-dim: #0a3020;
 
   /* Teal */
-  --teal: #38c8c8;
-  --teal-dim: #186060;
+  --teal: #38b8b8;
+  --teal-dim: #185858;
 
-  /* Red/danger */
-  --red: #d04040;
-  --red-dim: #601818;
+  /* Red/blood */
+  --red: #c04030;
+  --red-dim: #601808;
 
-  /* Purple — occult */
-  --purple: #9060d0;
-  --purple-dim: #401860;
+  /* Amber/fire */
+  --amber: #d87020;
+  --amber-dim: #683008;
 
-  /* Amber */
-  --amber: #d88020;
-  --amber-dim: #703808;
-
-  --font-ui: "Rajdhani", system-ui, sans-serif;
-  --font-mono: "DM Mono", monospace;
+  --font-display: "Cormorant SC", Georgia, serif;
   --font-serif: "Cormorant Garamond", Georgia, serif;
+  --font-mono: "DM Mono", monospace;
+  --font-ui: "Cormorant Garamond", Georgia, serif;
 }
 
 *,
@@ -62,11 +61,11 @@ html {
 }
 
 body {
-  background-color: var(--bg);
+  background-color: var(--bg-real);
   color: var(--text);
-  font-family: var(--font-ui);
+  font-family: var(--font-serif);
   min-height: 100vh;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.045'/%3E%3C/svg%3E");
 }
 
 a {
@@ -77,11 +76,11 @@ a {
   width: 4px;
 }
 ::-webkit-scrollbar-track {
-  background: var(--bg);
+  background: var(--bg-real);
 }
 ::-webkit-scrollbar-thumb {
-  background: var(--green-dim);
+  background: var(--gold-dim);
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--green-mid);
+  background: var(--gold);
 }

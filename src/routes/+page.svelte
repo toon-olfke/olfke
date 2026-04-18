@@ -4,14 +4,14 @@
 
 <svelte:head>
 	<title>olfke.be</title>
-	<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;400;500;600;700&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+	<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400;1,600&family=Cormorant+SC:wght@300;400;500;600;700&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
 </svelte:head>
 
-<!-- Atmosphere -->
-<div class="atmo-green"></div>
-<div class="atmo-purple"></div>
-<div class="atmo-amber"></div>
-<div class="scan-lines"></div>
+<!-- Atmosphere — layered warm glows -->
+<div class="atmo-fire-left"></div>
+<div class="atmo-fire-right"></div>
+<div class="atmo-green-bottom"></div>
+<div class="atmo-vignette"></div>
 
 <!-- Corner chrome -->
 <div class="corner tl"></div>
@@ -19,510 +19,604 @@
 <div class="corner bl"></div>
 <div class="corner br"></div>
 
-<!-- Nav — full bleed, minimal -->
+<!-- NAV -->
 <nav>
-	<a href="/" class="brand">
-		<span class="brand-dot"></span>
-		OLFKE.BE
-	</a>
-	<div class="nav-mid mono xs dim">// SYSTEM ONLINE</div>
-	<div class="nav-right">
-		<a href="/work">WORK</a>
+	<a href="/" class="brand">Olfke.be</a>
+	<div class="nav-center mono xs dim">
+		<span class="nav-dot"></span>
+		SYSTEM ONLINE
+	</div>
+	<div class="nav-links">
+		<a href="/work">Work</a>
 		{#if data.user}
-			<a href="/homelab" class="green">HOMELAB</a>
+			<a href="/homelab" class="nav-green">Homelab</a>
 			<form method="POST" action="/login?/logout" style="display:inline">
-				<button type="submit" class="nav-btn">LOGOUT</button>
+				<button type="submit" class="nav-btn">Logout</button>
 			</form>
 		{:else}
-			<a href="/login">ACCESS</a>
+			<a href="/login">Access</a>
 		{/if}
 	</div>
 </nav>
 
-<!-- ═══════════════════════════════════════════
-     HERO — full viewport, title bleeds to edges
-════════════════════════════════════════════ -->
+<!-- ═══════════════════════════════════
+     HERO — full viewport poster
+════════════════════════════════════ -->
 <section class="hero">
 
-	<!-- Giant title, full bleed -->
-	<div class="hero-title">
-		<span class="ht-olfke">OLFKE</span><span class="ht-be">.BE</span>
+	<!-- Background illustrated texture -->
+	<div class="hero-bg">
+		<!-- Large decorative circle/mandala -->
+		<svg class="hero-mandala" viewBox="0 0 1000 1000" fill="none" xmlns="http://www.w3.org/2000/svg">
+			<circle cx="500" cy="500" r="480" stroke="#c8943a" stroke-width="0.5" opacity="0.08"/>
+			<circle cx="500" cy="500" r="420" stroke="#c8943a" stroke-width="0.5" opacity="0.06"/>
+			<circle cx="500" cy="500" r="340" stroke="#c8943a" stroke-width="1" opacity="0.05"/>
+			<circle cx="500" cy="500" r="240" stroke="#c8943a" stroke-width="0.5" opacity="0.07"/>
+			<circle cx="500" cy="500" r="140" stroke="#3ae8a0" stroke-width="0.5" opacity="0.06"/>
+			<circle cx="500" cy="500" r="60"  stroke="#3ae8a0" stroke-width="1"   opacity="0.08"/>
+			<!-- Radial spokes -->
+			{#each {length: 24} as _, i}
+				<line
+					x1={500 + 60  * Math.cos(i * 15 * Math.PI/180)}
+					y1={500 + 60  * Math.sin(i * 15 * Math.PI/180)}
+					x2={500 + 480 * Math.cos(i * 15 * Math.PI/180)}
+					y2={500 + 480 * Math.sin(i * 15 * Math.PI/180)}
+					stroke="#c8943a" stroke-width="0.3" opacity="0.04"
+				/>
+			{/each}
+			<!-- Outer tick marks -->
+			{#each {length: 72} as _, i}
+				<line
+					x1={500 + 472 * Math.cos(i * 5 * Math.PI/180)}
+					y1={500 + 472 * Math.sin(i * 5 * Math.PI/180)}
+					x2={500 + 483 * Math.cos(i * 5 * Math.PI/180)}
+					y2={500 + 483 * Math.sin(i * 5 * Math.PI/180)}
+					stroke="#c8943a" stroke-width={i % 3 === 0 ? "1" : "0.4"} opacity="0.1"
+				/>
+			{/each}
+			<!-- Inner ornament hex -->
+			<polygon points="500,220 718,340 718,660 500,780 282,660 282,340"
+				stroke="#c8943a" stroke-width="0.6" fill="none" opacity="0.06"/>
+			<polygon points="500,310 655,395 655,605 500,690 345,605 345,395"
+				stroke="#3ae8a0" stroke-width="0.4" fill="none" opacity="0.05"/>
+		</svg>
 	</div>
 
-	<!-- Overlay content — sits on top of the title -->
-	<div class="hero-overlay">
-		<div class="hero-left">
-			<div class="mono xs dim signal">
-				<span class="signal-dot"></span>
-				TRANSMISSION INCOMING
+	<!-- Hero content -->
+	<div class="hero-content">
+
+		<div class="hero-eyebrow">
+			<div class="eyebrow-ornament">
+				<svg viewBox="0 0 200 12" fill="none">
+					<line x1="0" y1="6" x2="70" y2="6" stroke="#6a4818" stroke-width="0.5"/>
+					<circle cx="78" cy="6" r="2" fill="#c8943a" opacity="0.6"/>
+					<line x1="86" y1="6" x2="114" y2="6" stroke="#6a4818" stroke-width="0.5"/>
+					<circle cx="122" cy="6" r="2" fill="#c8943a" opacity="0.6"/>
+					<line x1="130" y1="6" x2="200" y2="6" stroke="#6a4818" stroke-width="0.5"/>
+				</svg>
 			</div>
-			<p class="hero-desc">Personal hub —<br>projects, tools<br>& infrastructure.</p>
-			<div class="hero-chips">
-				<span class="chip green-chip">● GHENT</span>
-				<span class="chip teal-chip">● ONLINE</span>
-				<span class="chip amber-chip">● SELF-HOSTED</span>
+			<span class="eyebrow-text">Transmission Incoming</span>
+			<div class="eyebrow-ornament">
+				<svg viewBox="0 0 200 12" fill="none">
+					<line x1="0" y1="6" x2="70" y2="6" stroke="#6a4818" stroke-width="0.5"/>
+					<circle cx="78" cy="6" r="2" fill="#c8943a" opacity="0.6"/>
+					<line x1="86" y1="6" x2="114" y2="6" stroke="#6a4818" stroke-width="0.5"/>
+					<circle cx="122" cy="6" r="2" fill="#c8943a" opacity="0.6"/>
+					<line x1="130" y1="6" x2="200" y2="6" stroke="#6a4818" stroke-width="0.5"/>
+				</svg>
 			</div>
 		</div>
 
-		<div class="hero-right">
-			<div class="readout">
-				<div class="readout-bar"></div>
-				<div class="r-row"><span class="r-k">STATUS</span><span class="r-v green">OPERATIONAL <span class="blink"></span></span></div>
-				<div class="r-row"><span class="r-k">HOST</span><span class="r-v">GHENT, BE</span></div>
-				<div class="r-row"><span class="r-k">STACK</span><span class="r-v teal">SK · LUCIA · PG</span></div>
-				<div class="r-row"><span class="r-k">UPTIME</span><span class="r-v green">99.9%</span></div>
+		<h1 class="hero-title">
+			<span class="ht-main">Olfke</span><span class="ht-tld">.be</span>
+		</h1>
+
+		<p class="hero-subtitle">
+			<em>Personal hub — projects, tools & infrastructure</em>
+		</p>
+
+		<div class="hero-divider">
+			<svg viewBox="0 0 600 20" fill="none" class="divider-svg">
+				<line x1="0" y1="10" x2="220" y2="10" stroke="#4a3010" stroke-width="0.75"/>
+				<path d="M228 10 L240 4 L252 10 L240 16 Z" fill="#c8943a" opacity="0.5"/>
+				<line x1="260" y1="10" x2="280" y2="10" stroke="#4a3010" stroke-width="0.75"/>
+				<circle cx="300" cy="10" r="4" stroke="#c8943a" stroke-width="1" fill="none" opacity="0.6"/>
+				<circle cx="300" cy="10" r="1.5" fill="#c8943a" opacity="0.6"/>
+				<line x1="320" y1="10" x2="340" y2="10" stroke="#4a3010" stroke-width="0.75"/>
+				<path d="M348 10 L360 4 L372 10 L360 16 Z" fill="#c8943a" opacity="0.5"/>
+				<line x1="380" y1="10" x2="600" y2="10" stroke="#4a3010" stroke-width="0.75"/>
+			</svg>
+		</div>
+
+		<div class="hero-meta">
+			<div class="meta-item">
+				<span class="meta-dot green-dot"></span>
+				<span class="meta-label">Ghent, Belgium</span>
 			</div>
+			<div class="meta-sep">·</div>
+			<div class="meta-item">
+				<span class="meta-dot teal-dot"></span>
+				<span class="meta-label">Online</span>
+			</div>
+			<div class="meta-sep">·</div>
+			<div class="meta-item">
+				<span class="meta-dot gold-dot"></span>
+				<span class="meta-label">Self-hosted</span>
+			</div>
+		</div>
+
+	</div>
+
+	<!-- Side readout — floated right -->
+	<div class="hero-readout">
+		<div class="readout-title mono xs">System Status</div>
+		<div class="readout-rows">
+			<div class="rr"><span class="rr-k">Status</span><span class="rr-v" style="color:var(--green)">Operational ●</span></div>
+			<div class="rr"><span class="rr-k">Location</span><span class="rr-v">Ghent, BE</span></div>
+			<div class="rr"><span class="rr-k">Stack</span><span class="rr-v" style="color:var(--teal)">SK · Lucia · PG</span></div>
+			<div class="rr"><span class="rr-k">Uptime</span><span class="rr-v" style="color:var(--green)">99.9%</span></div>
 		</div>
 	</div>
 
-	<!-- Scrolling ticker at bottom of hero -->
-	<div class="ticker">
-		<div class="ticker-track">
-			<span>OLFKE.BE</span>
-			<span class="tick-sep">◆</span>
-			<span>GHENT BELGIUM</span>
-			<span class="tick-sep">◆</span>
-			<span>SYSTEM OPERATIONAL</span>
-			<span class="tick-sep">◆</span>
-			<span>SVELTEKIT + LUCIA + DRIZZLE</span>
-			<span class="tick-sep">◆</span>
-			<span>SELF HOSTED</span>
-			<span class="tick-sep">◆</span>
-			<span>OLFKE.BE</span>
-			<span class="tick-sep">◆</span>
-			<span>GHENT BELGIUM</span>
-			<span class="tick-sep">◆</span>
-			<span>SYSTEM OPERATIONAL</span>
-			<span class="tick-sep">◆</span>
-			<span>SVELTEKIT + LUCIA + DRIZZLE</span>
-			<span class="tick-sep">◆</span>
-			<span>SELF HOSTED</span>
-			<span class="tick-sep">◆</span>
-		</div>
-	</div>
 </section>
 
-<!-- ═══════════════════════════════════════════
-     NAVIGATE — full bleed two zones
-════════════════════════════════════════════ -->
-<section class="zones">
+<!-- ═══════════════════════════════════
+     NAVIGATE
+════════════════════════════════════ -->
+<section class="navigate">
 
-	<a href="/work" class="zone zone-work">
-		<div class="zone-glow" style="background:radial-gradient(ellipse at 50% 100%, rgba(56,200,200,0.18) 0%, transparent 65%)"></div>
-		<div class="zone-num mono">01</div>
-		<div class="zone-tag" style="color:var(--teal);border-color:var(--teal-dim)">PUBLIC</div>
-		<h2 class="zone-title">WORK</h2>
-		<p class="zone-desc">IT shortcuts, tool references & daily bookmarks.</p>
-		<div class="zone-cta" style="color:var(--teal)">ENTER →</div>
-		<div class="zone-bar" style="background:var(--teal)"></div>
-		<div class="zone-bg-letter">W</div>
-	</a>
+	<div class="section-ornament">
+		<svg viewBox="0 0 800 30" fill="none" class="w-full">
+			<line x1="0" y1="15" x2="300" y2="15" stroke="#251808" stroke-width="1"/>
+			<path d="M308 15 L318 9 L328 15 L318 21 Z" fill="#6a4818" opacity="0.5"/>
+			<text x="340" y="20" font-family="'DM Mono'" font-size="10" fill="#6a4818" letter-spacing="6">NAVIGATE</text>
+			<path d="M472 15 L482 9 L492 15 L482 21 Z" fill="#6a4818" opacity="0.5"/>
+			<line x1="500" y1="15" x2="800" y2="15" stroke="#251808" stroke-width="1"/>
+		</svg>
+	</div>
 
-	<a href="/homelab" class="zone zone-lab">
-		<div class="zone-glow" style="background:radial-gradient(ellipse at 50% 100%, rgba(216,128,32,0.15) 0%, transparent 65%)"></div>
-		<div class="zone-num mono">02</div>
-		<div class="zone-tag" style="color:var(--amber);border-color:var(--amber-dim)">RESTRICTED</div>
-		<h2 class="zone-title">HOMELAB</h2>
-		<p class="zone-desc">Network topology, services & infrastructure.</p>
-		<div class="zone-cta" style="color:var(--amber)">ENTER →</div>
-		<div class="zone-bar" style="background:var(--amber)"></div>
-		<div class="zone-bg-letter">H</div>
-	</a>
+	<div class="nav-zones">
+
+		<a href="/work" class="nzone nzone-work">
+			<div class="nz-inner">
+				<div class="nz-top">
+					<span class="nz-num">I.</span>
+					<span class="nz-tag" style="color:var(--teal);border-color:var(--teal-dim)">Public</span>
+				</div>
+				<h2 class="nz-title">Work</h2>
+				<div class="nz-rule" style="background:var(--teal)"></div>
+				<p class="nz-desc">IT shortcuts, tool references & daily bookmarks for sysadmin work.</p>
+				<div class="nz-enter" style="color:var(--teal)">Enter →</div>
+			</div>
+			<div class="nz-glow" style="background:radial-gradient(ellipse at 50% 100%,rgba(56,184,184,0.15) 0%,transparent 65%)"></div>
+			<div class="nz-ghost">I</div>
+		</a>
+
+		<div class="nzone-divider">
+			<svg viewBox="0 0 20 400" fill="none">
+				<line x1="10" y1="0" x2="10" y2="160" stroke="#251808" stroke-width="1"/>
+				<circle cx="10" cy="170" r="4" stroke="#c8943a" stroke-width="0.75" fill="none" opacity="0.4"/>
+				<circle cx="10" cy="170" r="1.5" fill="#c8943a" opacity="0.4"/>
+				<line x1="10" y1="180" x2="10" y2="400" stroke="#251808" stroke-width="1"/>
+			</svg>
+		</div>
+
+		<a href="/homelab" class="nzone nzone-lab">
+			<div class="nz-inner">
+				<div class="nz-top">
+					<span class="nz-num">II.</span>
+					<span class="nz-tag" style="color:var(--amber);border-color:var(--amber-dim)">Restricted</span>
+				</div>
+				<h2 class="nz-title">Homelab</h2>
+				<div class="nz-rule" style="background:var(--amber)"></div>
+				<p class="nz-desc">Network topology, services & infrastructure. Ghent home setup.</p>
+				<div class="nz-enter" style="color:var(--amber)">Enter →</div>
+			</div>
+			<div class="nz-glow" style="background:radial-gradient(ellipse at 50% 100%,rgba(216,112,32,0.12) 0%,transparent 65%)"></div>
+			<div class="nz-ghost">II</div>
+		</a>
+
+	</div>
 
 </section>
 
-<!-- ═══════════════════════════════════════════
-     DEPLOYED — horizontal strip
-════════════════════════════════════════════ -->
+<!-- ═══════════════════════════════════
+     DEPLOYED
+════════════════════════════════════ -->
 <section class="deployed">
-	<div class="deployed-label mono xs">// DEPLOYED PROJECTS</div>
 
-	<div class="project-strip">
+	<div class="section-ornament">
+		<svg viewBox="0 0 800 30" fill="none" class="w-full">
+			<line x1="0" y1="15" x2="285" y2="15" stroke="#251808" stroke-width="1"/>
+			<path d="M293 15 L303 9 L313 15 L303 21 Z" fill="#6a4818" opacity="0.5"/>
+			<text x="325" y="20" font-family="'DM Mono'" font-size="10" fill="#6a4818" letter-spacing="6">DEPLOYED</text>
+			<path d="M467 15 L477 9 L487 15 L477 21 Z" fill="#6a4818" opacity="0.5"/>
+			<line x1="495" y1="15" x2="800" y2="15" stroke="#251808" stroke-width="1"/>
+		</svg>
+	</div>
 
-		<a href="https://ovam-buddy.olfke.be" target="_blank" rel="noopener" class="proj" style="--c:#38c8c8">
-			<div class="proj-glow"></div>
-			<div class="proj-inner">
-				<div class="proj-top">
-					<span class="mono xs dim">INTERNAL TOOL</span>
-					<span class="mono xs" style="color:#38c8c8">● LIVE</span>
+	<div class="project-list">
+
+		<a href="https://ovam-buddy.olfke.be" target="_blank" rel="noopener" class="project">
+			<div class="proj-num">01</div>
+			<div class="proj-body">
+				<div class="proj-meta">
+					<span class="proj-tag mono xs">Internal Tool</span>
+					<span class="proj-live mono xs" style="color:var(--teal)">● Live</span>
 				</div>
-				<h3 class="proj-name">OVAM BUDDY</h3>
+				<h3 class="proj-name">Ovam Buddy</h3>
 				<p class="proj-desc">MATIS waste management — quarterly OVAM CSV submissions.</p>
-				<span class="proj-url mono xs">↗ ovam-buddy.olfke.be</span>
 			</div>
-			<div class="proj-accent"></div>
+			<div class="proj-link mono xs">↗ ovam-buddy.olfke.be</div>
+			<div class="proj-rule" style="background:var(--teal)"></div>
 		</a>
 
-		<a href="https://bday-m.olfke.be" target="_blank" rel="noopener" class="proj" style="--c:#c8a84a">
-			<div class="proj-glow"></div>
-			<div class="proj-inner">
-				<div class="proj-top">
-					<span class="mono xs dim">PRIVATE</span>
-					<span class="mono xs" style="color:#c8a84a">● LIVE</span>
+		<div class="proj-divider"></div>
+
+		<a href="https://bday-m.olfke.be" target="_blank" rel="noopener" class="project">
+			<div class="proj-num">02</div>
+			<div class="proj-body">
+				<div class="proj-meta">
+					<span class="proj-tag mono xs">Private</span>
+					<span class="proj-live mono xs" style="color:var(--gold)">● Live</span>
 				</div>
-				<h3 class="proj-name">HOTEL 505</h3>
+				<h3 class="proj-name">Hotel 505</h3>
 				<p class="proj-desc">A birthday gift. A letter. A hope.</p>
-				<span class="proj-url mono xs">↗ bday-m.olfke.be</span>
 			</div>
-			<div class="proj-accent"></div>
+			<div class="proj-link mono xs">↗ bday-m.olfke.be</div>
+			<div class="proj-rule" style="background:var(--gold)"></div>
 		</a>
-
-		<!-- Placeholder slot -->
-		<div class="proj proj-empty">
-			<div class="proj-inner">
-				<div class="proj-top">
-					<span class="mono xs dim">PENDING</span>
-				</div>
-				<h3 class="proj-name dim">???</h3>
-				<p class="proj-desc dim">Next project loading...</p>
-			</div>
-		</div>
 
 	</div>
+
 </section>
 
 <!-- Footer -->
 <footer>
-	<span class="mono xs dim">OLFKE.BE // GHENT // {new Date().getFullYear()}</span>
-	<span class="mono xs dim">SK · LUCIA · DRIZZLE · DOCKER</span>
+	<div class="footer-ornament">
+		<svg viewBox="0 0 600 16" fill="none">
+			<line x1="0" y1="8" x2="250" y2="8" stroke="#251808" stroke-width="0.75"/>
+			<circle cx="258" cy="8" r="2" fill="#6a4818" opacity="0.5"/>
+			<line x1="266" y1="8" x2="334" y2="8" stroke="#251808" stroke-width="0.75"/>
+			<circle cx="342" cy="8" r="2" fill="#6a4818" opacity="0.5"/>
+			<line x1="350" y1="8" x2="600" y2="8" stroke="#251808" stroke-width="0.75"/>
+		</svg>
+	</div>
+	<div class="footer-text">
+		<span>Olfke.be — Ghent, Belgium</span>
+		<span class="mono xs dim">SK · Lucia · Drizzle · Docker</span>
+	</div>
 </footer>
 
 <style>
-/* ── Reset & base ── */
-* { box-sizing: border-box; margin: 0; padding: 0; }
-a { color: inherit; text-decoration: none; }
-
-/* ── Atmosphere ── */
-.atmo-green {
-	position: fixed; bottom: -20vh; left: -10vw;
-	width: 70vw; height: 60vh;
-	background: radial-gradient(ellipse, rgba(20,160,80,0.1) 0%, transparent 65%);
-	pointer-events: none; z-index: 0;
-}
-.atmo-purple {
-	position: fixed; top: -10vh; right: -10vw;
-	width: 50vw; height: 50vh;
-	background: radial-gradient(ellipse, rgba(80,30,160,0.09) 0%, transparent 60%);
-	pointer-events: none; z-index: 0;
-}
-.atmo-amber {
-	position: fixed; top: 30vh; left: -5vw;
-	width: 30vw; height: 40vh;
-	background: radial-gradient(ellipse, rgba(180,90,10,0.07) 0%, transparent 60%);
-	pointer-events: none; z-index: 0;
-}
-.scan-lines {
-	position: fixed; inset: 0; pointer-events: none; z-index: 1;
-	background: repeating-linear-gradient(
-		0deg,
-		transparent,
-		transparent 2px,
-		rgba(0,0,0,0.03) 2px,
-		rgba(0,0,0,0.03) 4px
-	);
-}
-
-/* ── Corner chrome ── */
-.corner { position: fixed; width: 20px; height: 20px; z-index: 300; pointer-events: none; }
-.corner.tl { top: 10px; left: 10px; border-top: 1px solid var(--green-mid); border-left: 1px solid var(--green-mid); }
-.corner.tr { top: 10px; right: 10px; border-top: 1px solid var(--green-mid); border-right: 1px solid var(--green-mid); }
-.corner.bl { bottom: 10px; left: 10px; border-bottom: 1px solid var(--green-mid); border-left: 1px solid var(--green-mid); }
-.corner.br { bottom: 10px; right: 10px; border-bottom: 1px solid var(--green-mid); border-right: 1px solid var(--green-mid); }
-
 /* ── Utilities ── */
 .mono { font-family: var(--font-mono); }
 .xs   { font-size: 0.6rem; letter-spacing: 0.1em; }
 .dim  { color: var(--text-dim); }
-.green { color: var(--green); }
-.teal  { color: var(--teal); }
+.w-full { width: 100%; }
+
+/* ── Atmosphere ── */
+.atmo-fire-left {
+	position: fixed; top: -10vh; left: -15vw;
+	width: 60vw; height: 70vh;
+	background: radial-gradient(ellipse, rgba(160,80,10,0.16) 0%, rgba(100,40,5,0.06) 40%, transparent 70%);
+	pointer-events: none; z-index: 0;
+}
+.atmo-fire-right {
+	position: fixed; top: 20vh; right: -20vw;
+	width: 50vw; height: 60vh;
+	background: radial-gradient(ellipse, rgba(120,60,8,0.1) 0%, transparent 65%);
+	pointer-events: none; z-index: 0;
+}
+.atmo-green-bottom {
+	position: fixed; bottom: -15vh; left: 20vw;
+	width: 60vw; height: 50vh;
+	background: radial-gradient(ellipse, rgba(20,120,60,0.08) 0%, transparent 65%);
+	pointer-events: none; z-index: 0;
+}
+.atmo-vignette {
+	position: fixed; inset: 0;
+	background: radial-gradient(ellipse at 50% 40%, transparent 25%, rgba(5,3,1,0.85) 100%);
+	pointer-events: none; z-index: 0;
+}
+
+/* ── Corner chrome ── */
+.corner { position: fixed; width: 24px; height: 24px; z-index: 300; pointer-events: none; }
+.corner.tl { top: 12px; left: 12px;   border-top:    1px solid var(--gold-dim); border-left:  1px solid var(--gold-dim); }
+.corner.tr { top: 12px; right: 12px;  border-top:    1px solid var(--gold-dim); border-right: 1px solid var(--gold-dim); }
+.corner.bl { bottom: 12px; left: 12px;  border-bottom: 1px solid var(--gold-dim); border-left:  1px solid var(--gold-dim); }
+.corner.br { bottom: 12px; right: 12px; border-bottom: 1px solid var(--gold-dim); border-right: 1px solid var(--gold-dim); }
 
 /* ── Nav ── */
 nav {
 	position: fixed; top: 0; left: 0; right: 0; z-index: 200;
-	display: grid; grid-template-columns: 1fr 1fr 1fr;
+	display: grid; grid-template-columns: 1fr auto 1fr;
 	align-items: center;
-	padding: 0.75rem 1.5rem;
+	padding: 0.9rem 2.5rem;
 	border-bottom: 1px solid var(--border);
-	background: rgba(8,9,12,0.95);
+	background: rgba(9,6,3,0.92);
 	backdrop-filter: blur(24px);
 }
 .brand {
+	font-family: var(--font-display); font-size: 1rem; font-weight: 600;
+	letter-spacing: 0.12em; color: var(--gold);
+	transition: color 0.2s, text-shadow 0.3s;
+}
+.brand:hover { color: var(--gold-bright); text-shadow: 0 0 20px rgba(200,148,58,0.4); }
+.nav-center {
 	display: flex; align-items: center; gap: 0.5rem;
-	font-family: var(--font-ui); font-weight: 700;
-	font-size: 0.85rem; letter-spacing: 0.18em;
-	color: var(--green);
-	transition: text-shadow 0.3s;
+	font-family: var(--font-mono); font-size: 0.55rem;
+	letter-spacing: 0.15em; color: var(--text-dim);
 }
-.brand:hover { text-shadow: 0 0 20px rgba(61,255,160,0.6); }
-.brand-dot {
-	width: 6px; height: 6px; border-radius: 50%;
+.nav-dot {
+	width: 5px; height: 5px; border-radius: 50; flex-shrink: 0;
 	background: var(--green); box-shadow: 0 0 8px var(--green);
-	animation: blink 2.5s infinite; flex-shrink: 0;
+	animation: blink 2.5s infinite;
 }
-.nav-mid { display: flex; justify-content: center; }
-.nav-right { display: flex; gap: 1.75rem; align-items: center; justify-content: flex-end; }
-.nav-right a, .nav-btn {
-	font-family: var(--font-ui); font-weight: 600; font-size: 0.7rem;
-	letter-spacing: 0.14em; color: var(--text-muted);
+@keyframes blink { 0%,100%{opacity:1;} 50%{opacity:0.2;} }
+.nav-links { display: flex; gap: 2rem; align-items: center; justify-content: flex-end; }
+.nav-links a, .nav-btn {
+	font-family: var(--font-serif); font-size: 0.9rem;
+	letter-spacing: 0.08em; color: var(--text-muted);
 	background: none; border: none; cursor: pointer;
-	transition: color 0.2s; padding: 0;
+	transition: color 0.2s; padding: 0; font-style: italic;
 }
-.nav-right a:hover, .nav-btn:hover { color: var(--green); }
-.nav-right .green { color: var(--green) !important; }
+.nav-links a:hover, .nav-btn:hover { color: var(--gold); }
+.nav-green { color: var(--green) !important; }
 
 /* ── HERO ── */
 .hero {
 	position: relative; z-index: 1;
 	min-height: 100vh;
+	display: flex; align-items: center; justify-content: center;
+	flex-direction: column;
+	border-bottom: 1px solid var(--border);
+	overflow: hidden;
+}
+
+.hero-bg {
+	position: absolute; inset: 0;
+	display: flex; align-items: center; justify-content: center;
+	pointer-events: none;
+}
+.hero-mandala {
+	width: min(100vw, 900px);
+	height: min(100vw, 900px);
+	opacity: 1;
+	animation: slow-spin 180s linear infinite;
+}
+@keyframes slow-spin {
+	from { transform: rotate(0deg); }
+	to   { transform: rotate(360deg); }
+}
+
+.hero-content {
+	position: relative; z-index: 2;
 	display: flex; flex-direction: column;
-	overflow: hidden;
-	border-bottom: 1px solid var(--border);
+	align-items: center; text-align: center;
+	padding: 8rem 2rem 6rem;
+	gap: 1.5rem;
 }
 
-/* Giant title — full bleed, bleeds off edges on purpose */
+.hero-eyebrow {
+	display: flex; align-items: center; gap: 1rem;
+	width: 100%; max-width: 500px;
+}
+.eyebrow-ornament { flex: 1; }
+.eyebrow-text {
+	font-family: var(--font-serif); font-style: italic;
+	font-size: 0.78rem; letter-spacing: 0.18em;
+	color: var(--text-dim); white-space: nowrap;
+}
+
 .hero-title {
-	position: absolute;
-	bottom: 4rem; left: -0.02em;
-	white-space: nowrap;
-	line-height: 0.85;
-	pointer-events: none;
-	user-select: none;
+	line-height: 0.88;
+	display: flex; align-items: flex-end;
+	gap: 0.05em;
 }
-.ht-olfke {
-	font-family: var(--font-ui); font-weight: 700;
-	font-size: clamp(8rem, 22vw, 22rem);
-	color: transparent;
-	-webkit-text-stroke: 1px rgba(255,255,255,0.07);
-	letter-spacing: -0.02em;
+.ht-main {
+	font-family: var(--font-display); font-weight: 700;
+	font-size: clamp(5rem, 14vw, 12rem);
+	color: var(--text);
+	letter-spacing: 0.04em;
+	text-shadow: 0 4px 40px rgba(0,0,0,0.8), 0 0 80px rgba(200,148,58,0.06);
 }
-.ht-be {
-	font-family: var(--font-ui); font-weight: 300;
-	font-size: clamp(8rem, 22vw, 22rem);
-	color: transparent;
-	-webkit-text-stroke: 1px rgba(61,255,160,0.15);
-	letter-spacing: -0.02em;
-	text-shadow: 0 0 120px rgba(61,255,160,0.08);
+.ht-tld {
+	font-family: var(--font-display); font-weight: 300;
+	font-size: clamp(3.5rem, 10vw, 9rem);
+	color: var(--gold);
+	letter-spacing: 0.04em;
+	text-shadow: 0 0 40px rgba(200,148,58,0.5), 0 0 80px rgba(200,148,58,0.2);
+	padding-bottom: 0.08em;
 }
 
-/* Overlay content */
-.hero-overlay {
-	flex: 1;
-	display: flex; justify-content: space-between; align-items: flex-start;
-	padding: 7rem 2.5rem 2rem;
-	position: relative; z-index: 2;
-}
-.hero-left { display: flex; flex-direction: column; gap: 1.5rem; }
-
-.signal {
-	display: flex; align-items: center; gap: 0.6rem;
-}
-.signal-dot {
-	width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0;
-	background: var(--green); box-shadow: 0 0 12px var(--green), 0 0 24px rgba(61,255,160,0.3);
-	animation: glow-pulse 2s infinite;
-}
-@keyframes glow-pulse {
-	0%,100% { box-shadow: 0 0 12px var(--green), 0 0 24px rgba(61,255,160,0.3); }
-	50% { box-shadow: 0 0 4px var(--green); }
+.hero-subtitle {
+	font-family: var(--font-serif); font-size: 1.1rem;
+	color: var(--text-muted); letter-spacing: 0.06em;
+	font-style: italic;
 }
 
-.hero-desc {
-	font-family: var(--font-ui); font-weight: 300;
-	font-size: clamp(1.1rem, 2.5vw, 1.6rem);
-	color: var(--text-muted); line-height: 1.5;
-	letter-spacing: 0.03em;
-}
+.hero-divider { width: 100%; max-width: 600px; }
+.divider-svg { width: 100%; }
 
-.hero-chips { display: flex; gap: 0.5rem; flex-wrap: wrap; }
-.chip {
-	font-family: var(--font-mono); font-size: 0.58rem;
-	letter-spacing: 0.1em; padding: 0.28rem 0.7rem; border: 1px solid;
+.hero-meta {
+	display: flex; align-items: center; gap: 1rem;
+	font-family: var(--font-serif); font-size: 0.85rem;
+	color: var(--text-muted); letter-spacing: 0.08em;
 }
-.green-chip { color: var(--green); border-color: var(--green-dim); background: rgba(61,255,160,0.04); }
-.teal-chip  { color: var(--teal);  border-color: var(--teal-dim);  background: rgba(56,200,200,0.04); }
-.amber-chip { color: var(--amber); border-color: var(--amber-dim); background: rgba(216,128,32,0.04); }
+.meta-item { display: flex; align-items: center; gap: 0.4rem; }
+.meta-sep  { color: var(--gold-dim); }
+.meta-dot  { width: 6px; height: 6px; border-radius: 50%; }
+.green-dot { background: var(--green); box-shadow: 0 0 8px var(--green); animation: blink 2.5s infinite; }
+.teal-dot  { background: var(--teal); }
+.gold-dot  { background: var(--gold); }
+.meta-label { font-style: italic; }
 
-/* Readout panel */
-.hero-right { padding-top: 0.5rem; }
-.readout {
-	background: var(--bg-card);
+/* Side readout */
+.hero-readout {
+	position: absolute; right: 3rem; top: 50%;
+	transform: translateY(-50%);
+	z-index: 3;
 	border: 1px solid var(--border-mid);
-	min-width: 260px;
-	position: relative; overflow: hidden;
+	border-top: 2px solid var(--gold-dim);
+	background: rgba(12,8,4,0.85);
+	backdrop-filter: blur(8px);
+	min-width: 220px;
 }
-.readout-bar {
-	height: 2px;
-	background: linear-gradient(90deg, var(--green), var(--teal), transparent);
-}
-.r-row {
-	display: flex; justify-content: space-between; align-items: center;
+.readout-title {
 	padding: 0.5rem 1rem; border-bottom: 1px solid var(--border);
-	gap: 1rem;
+	color: var(--gold-dim); letter-spacing: 0.15em;
 }
-.r-row:last-child { border-bottom: none; }
-.r-k { font-family: var(--font-mono); font-size: 0.52rem; letter-spacing: 0.15em; color: var(--text-dim); flex-shrink: 0; }
-.r-v { font-family: var(--font-mono); font-size: 0.58rem; letter-spacing: 0.06em; color: var(--text-muted); text-align: right; }
-.r-v.green { color: var(--green); }
-.r-v.teal  { color: var(--teal); }
-.blink { display: inline-block; width: 5px; height: 5px; border-radius: 50%; background: var(--green); box-shadow: 0 0 6px var(--green); animation: blink 2.5s infinite; vertical-align: middle; margin-left: 3px; }
-@keyframes blink { 0%,100%{opacity:1;} 50%{opacity:0.2;} }
+.readout-rows { display: flex; flex-direction: column; }
+.rr {
+	display: flex; justify-content: space-between; align-items: center;
+	padding: 0.45rem 1rem; border-bottom: 1px solid var(--border); gap: 1rem;
+}
+.rr:last-child { border-bottom: none; }
+.rr-k { font-family: var(--font-mono); font-size: 0.5rem; letter-spacing: 0.15em; color: var(--text-dim); flex-shrink: 0; }
+.rr-v { font-family: var(--font-mono); font-size: 0.56rem; letter-spacing: 0.06em; color: var(--text-muted); text-align: right; }
 
-/* Ticker */
-.ticker {
-	position: relative; z-index: 2;
-	border-top: 1px solid var(--border);
-	padding: 0.5rem 0;
-	overflow: hidden;
-	background: rgba(8,9,12,0.6);
-}
-.ticker-track {
-	display: flex; gap: 2rem; white-space: nowrap;
-	animation: ticker 30s linear infinite;
-	font-family: var(--font-mono); font-size: 0.55rem;
-	letter-spacing: 0.15em; color: var(--text-dim);
-}
-.tick-sep { color: var(--green-mid); }
-@keyframes ticker { from { transform: translateX(0); } to { transform: translateX(-50%); } }
-
-/* ── ZONES ── */
-.zones {
-	display: grid; grid-template-columns: 1fr 1fr;
+/* ── NAVIGATE ── */
+.navigate {
 	position: relative; z-index: 1;
+	padding: 3rem 0 0;
 	border-bottom: 1px solid var(--border);
 }
-.zone {
-	position: relative; overflow: hidden;
-	padding: 3rem 3rem 2.5rem;
-	display: flex; flex-direction: column; gap: 1rem;
+.section-ornament {
+	padding: 0 3rem; margin-bottom: 2rem;
+}
+.nav-zones {
+	display: grid; grid-template-columns: 1fr 20px 1fr;
 	min-height: 380px;
-	background: var(--bg-card);
-	transition: background 0.3s;
-	border-right: 1px solid var(--border);
 }
-.zone:last-child { border-right: none; }
-.zone:hover { background: var(--bg-card2); }
-
-.zone-glow { position: absolute; inset: 0; pointer-events: none; opacity: 0; transition: opacity 0.4s; }
-.zone:hover .zone-glow { opacity: 1; }
-
-.zone-num { font-size: 0.62rem; color: var(--text-dim); letter-spacing: 0.12em; }
-.zone-tag {
-	display: inline-block; align-self: flex-start;
-	font-family: var(--font-mono); font-size: 0.52rem;
-	letter-spacing: 0.12em; padding: 0.22rem 0.6rem; border: 1px solid;
+.nzone {
+	position: relative; overflow: hidden;
+	padding: 2.5rem 3rem;
+	display: flex; flex-direction: column;
+	transition: background 0.4s;
 }
-.zone-title {
-	font-family: var(--font-ui); font-weight: 700;
+.nzone:hover { background: rgba(20,14,8,0.6); }
+.nz-inner { display: flex; flex-direction: column; gap: 0.8rem; position: relative; z-index: 2; }
+.nz-top { display: flex; justify-content: space-between; align-items: center; }
+.nz-num {
+	font-family: var(--font-display); font-size: 1.2rem;
+	color: var(--text-dim); letter-spacing: 0.1em;
+}
+.nz-tag {
+	font-family: var(--font-mono); font-size: 0.5rem;
+	letter-spacing: 0.12em; padding: 0.2rem 0.55rem; border: 1px solid;
+}
+.nz-title {
+	font-family: var(--font-display); font-weight: 700;
 	font-size: clamp(3rem, 6vw, 6rem);
-	letter-spacing: 0.02em; line-height: 1;
+	letter-spacing: 0.04em; line-height: 1;
 	color: var(--text); transition: color 0.3s;
-	margin-top: auto;
 }
-.zone-work:hover .zone-title  { color: var(--teal); }
-.zone-lab:hover  .zone-title  { color: var(--amber); }
-
-.zone-bar {
-	height: 2px; width: 0; opacity: 0.7;
-	transition: width 0.5s cubic-bezier(0.4,0,0.2,1);
+.nzone-work:hover .nz-title { color: var(--teal); }
+.nzone-lab:hover  .nz-title { color: var(--amber); }
+.nz-rule { height: 1px; width: 0; transition: width 0.5s cubic-bezier(0.4,0,0.2,1); opacity: 0.6; }
+.nzone:hover .nz-rule { width: 100%; }
+.nz-desc {
+	font-family: var(--font-serif); font-size: 0.95rem; font-style: italic;
+	color: var(--text-muted); line-height: 1.7; max-width: 400px;
 }
-.zone:hover .zone-bar { width: 100%; }
-
-.zone-desc {
-	font-family: var(--font-ui); font-weight: 400; font-size: 0.82rem;
-	color: var(--text-muted); line-height: 1.6; max-width: 380px;
+.nz-enter {
+	font-family: var(--font-serif); font-style: italic; font-size: 1rem;
+	letter-spacing: 0.08em; margin-top: auto;
+	transition: letter-spacing 0.3s, color 0.3s;
 }
-.zone-cta {
-	font-family: var(--font-mono); font-size: 0.65rem;
-	letter-spacing: 0.18em; margin-top: auto;
-	transition: letter-spacing 0.3s;
+.nzone:hover .nz-enter { letter-spacing: 0.18em; }
+.nz-glow {
+	position: absolute; inset: 0; pointer-events: none;
+	opacity: 0; transition: opacity 0.4s;
 }
-.zone:hover .zone-cta { letter-spacing: 0.3em; }
-
-.zone-bg-letter {
+.nzone:hover .nz-glow { opacity: 1; }
+.nz-ghost {
 	position: absolute; bottom: -3rem; right: -1rem;
-	font-family: var(--font-ui); font-weight: 700;
-	font-size: 18rem; line-height: 1;
-	color: var(--text); opacity: 0.02;
-	pointer-events: none;
-	transition: opacity 0.3s;
-	letter-spacing: -0.05em;
+	font-family: var(--font-display); font-weight: 700;
+	font-size: 16rem; line-height: 1; letter-spacing: -0.04em;
+	color: var(--text); opacity: 0.018;
+	pointer-events: none; transition: opacity 0.4s;
 }
-.zone:hover .zone-bg-letter { opacity: 0.04; }
+.nzone:hover .nz-ghost { opacity: 0.04; }
+.nzone-divider {
+	display: flex; justify-content: center;
+	padding: 1rem 0;
+}
 
 /* ── DEPLOYED ── */
 .deployed {
 	position: relative; z-index: 1;
-	padding: 2rem 0 0;
+	padding: 3rem 0 0;
 	border-bottom: 1px solid var(--border);
 }
-.deployed-label {
-	padding: 0 2.5rem 1.25rem;
-	color: var(--green-mid);
+.project-list {
+	display: flex; flex-direction: column;
 }
-.project-strip {
-	display: grid;
-	grid-template-columns: repeat(3, 1fr);
+.project {
+	display: grid; grid-template-columns: 80px 1fr auto;
+	align-items: center; gap: 2rem;
+	padding: 1.75rem 3rem;
+	position: relative; overflow: hidden;
+	transition: background 0.3s;
 	border-top: 1px solid var(--border);
 }
-.proj {
-	position: relative; overflow: hidden;
-	background: var(--bg-card);
-	border-right: 1px solid var(--border);
-	display: flex; flex-direction: column;
-	transition: background 0.25s;
-	min-height: 220px;
+.project:hover { background: rgba(20,14,8,0.5); }
+.proj-rule {
+	position: absolute; bottom: 0; left: 0; right: 0;
+	height: 1px; width: 0;
+	transition: width 0.5s cubic-bezier(0.4,0,0.2,1);
+	opacity: 0.5;
 }
-.proj:last-child { border-right: none; }
-.proj:hover { background: var(--bg-card2); }
-
-.proj-glow {
-	position: absolute; inset: 0; pointer-events: none;
-	background: radial-gradient(ellipse at 80% 20%, color-mix(in srgb, var(--c) 14%, transparent), transparent 55%);
-	opacity: 0; transition: opacity 0.35s;
+.project:hover .proj-rule { width: 100%; }
+.proj-num {
+	font-family: var(--font-display); font-size: 2rem; font-weight: 300;
+	color: var(--text-dim); letter-spacing: 0.08em;
 }
-.proj:hover .proj-glow { opacity: 1; }
-
-.proj-accent {
-	height: 2px; flex-shrink: 0;
-	background: linear-gradient(90deg, var(--c), transparent 70%);
-}
-.proj-inner {
-	flex: 1; padding: 1.5rem;
-	display: flex; flex-direction: column; gap: 0.55rem;
-	position: relative; z-index: 1;
-}
-.proj-top { display: flex; justify-content: space-between; }
+.proj-body { display: flex; flex-direction: column; gap: 0.4rem; }
+.proj-meta { display: flex; gap: 1rem; align-items: center; }
+.proj-tag { color: var(--text-dim); }
 .proj-name {
-	font-family: var(--font-ui); font-weight: 700;
-	font-size: 1.4rem; letter-spacing: 0.03em;
+	font-family: var(--font-display); font-weight: 600;
+	font-size: 1.8rem; letter-spacing: 0.04em;
 	color: var(--text); transition: color 0.2s;
 }
-.proj:hover .proj-name { color: var(--c); }
+.project:hover .proj-name { color: var(--gold); }
 .proj-desc {
-	font-family: var(--font-ui); font-size: 0.78rem;
-	color: var(--text-muted); line-height: 1.6; flex: 1;
+	font-family: var(--font-serif); font-style: italic;
+	font-size: 0.9rem; color: var(--text-muted); line-height: 1.5;
 }
-.proj-url { font-family: var(--font-mono); font-size: 0.55rem; color: var(--text-dim); transition: color 0.2s; }
-.proj:hover .proj-url { color: var(--c); }
-.proj-empty { opacity: 0.35; cursor: default; }
-.proj-empty:hover { background: var(--bg-card); }
+.proj-link {
+	color: var(--text-dim); transition: color 0.2s; white-space: nowrap;
+}
+.project:hover .proj-link { color: var(--gold); }
+.proj-divider { border-top: 1px solid var(--border); }
 
 /* ── Footer ── */
 footer {
 	position: relative; z-index: 1;
+	display: flex; flex-direction: column; align-items: center;
+	gap: 0.75rem; padding: 2rem 2.5rem;
+}
+.footer-ornament { width: 100%; max-width: 600px; }
+.footer-text {
 	display: flex; justify-content: space-between;
-	padding: 1.25rem 2.5rem;
-	border-top: 1px solid var(--border);
+	width: 100%; max-width: 600px;
+	font-family: var(--font-serif); font-size: 0.8rem;
+	letter-spacing: 0.1em; color: var(--text-dim); font-style: italic;
 }
 
 /* ── Responsive ── */
 @media (max-width: 800px) {
-	.zones { grid-template-columns: 1fr; }
-	.project-strip { grid-template-columns: 1fr; }
-	.hero-overlay { flex-direction: column; padding: 6rem 1.5rem 2rem; }
-	.hero-right { display: none; }
-	nav { grid-template-columns: 1fr 1fr; padding: 0.75rem 1rem; }
-	.nav-mid { display: none; }
-	footer { padding: 1rem 1.5rem; }
+	.nav-zones { grid-template-columns: 1fr; }
+	.nzone-divider { display: none; }
+	.hero-readout { display: none; }
+	.hero-content { padding: 7rem 1.5rem 4rem; }
+	.project { grid-template-columns: 60px 1fr; }
+	.proj-link { display: none; }
+	nav { grid-template-columns: 1fr 1fr; padding: 0.9rem 1.5rem; }
+	.nav-center { display: none; }
+	.section-ornament { padding: 0 1.5rem; }
+	.nzone { padding: 2rem 1.5rem; }
 }
 </style>
