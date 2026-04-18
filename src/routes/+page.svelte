@@ -146,7 +146,13 @@
 </footer>
 
 <style>
-.top-bar { height: 5px; background: linear-gradient(90deg, var(--wood-dk), var(--wood-lt), var(--wood-dk)); }
+.top-bar {
+    height: 5px;
+    background: linear-gradient(90deg, var(--wood-dk), var(--wood-lt), var(--wood-dk));
+    position: sticky;
+    top: 0;
+    z-index: 300;
+}
 .layout  { display: grid; grid-template-columns: 64px 1fr; min-height: calc(100vh - 5px); }
 
 /* Rail */
