@@ -11,6 +11,8 @@ RUN npm prune --production
 # ---- runtime ----
 FROM node:20-alpine
 
+RUN apk add --no-cache postgresql-client
+
 WORKDIR /app
 COPY --from=builder /app/build       ./build
 COPY --from=builder /app/node_modules ./node_modules
