@@ -1,11 +1,17 @@
 <script lang="ts">
+	type Item = { label: string; cmd?: string; note?: string; run?: boolean };
 	type DockerItem = { label: string; cmd: string; note?: string };
+
 	let copied = '';
+	let activeTab: 'general' | 'intune' | 'printing' = 'general';
+
 	function copy(text: string, key: string) {
 		navigator.clipboard.writeText(text);
 		copied = key;
-		setTimeout(() => copied = '', 2000);
+		setTimeout(() => (copied = ''), 2000);
 	}
+
+	// ── GENERAL ──────────────────────────────────────────────────────────────
 
 	const sections = [
 		{
@@ -141,6 +147,135 @@
 		{ port: '8443',  proto: 'TCP',     service: 'HTTPS alt' },
 		{ port: '27017', proto: 'TCP',     service: 'MongoDB' },
 	];
+
+	// ── INTUNE ────────────────────────────────────────────────────────────────
+
+	type IntuneEntry = {
+		title: string;
+		description: string;
+		steps: string[];
+		commands?: { label: string; cmd: string }[];
+		note?: string;
+	};
+
+	const intuneEntries: IntuneEntry[] = [
+		{
+			title: 'Enroll via Microsoft Partner Portal (Product Key)',
+			description: 'Used when you receive a new device with a product key from the vendor. Upload directly to the client\'s tenant via the Partner Portal.',
+			steps: [
+				'Go to partner.microsoft.com and sign in with your partner account',
+				'Navigate to the client\'s tenant via Customers',
+				'Go to Service Management → Microsoft 365 Admin Center',
+				'Navigate to Devices → Autopilot → Devices and click Import',
+				'Enter the product key or use the bulk import option if provided by the vendor',
+				'Wait for the device to appear in the Autopilot device list (can take up to 15 minutes)',
+				'Assign the appropriate Autopilot profile to the device or device group',
+				'Boot the device and proceed through OOBE — it should pick up the profile automatically',
+			],
+			note: 'Make sure the correct Autopilot deployment profile is assigned before the device boots. If the profile doesn\'t apply, check group assignments and try syncing in Intune.',
+		},
+		{
+			title: 'Enroll via Hardware Hash (CSV)',
+			description: 'Used when you need to manually extract the hardware hash from the device and import it into Autopilot.',
+			steps: [
+				'Boot the device to the OOBE screen',
+				'Press Shift + F10 to open a command prompt',
+				'Launch PowerShell by typing: powershell',
+				'Install the script if not present (see command below)',
+				'Extract the hash to a CSV (see command below)',
+				'Copy the CSV off the device via USB or network share',
+				'In Intune, go to Devices → Enrollment → Autopilot → Devices and click Import',
+				'Upload the CSV and wait for the device to appear (up to 15 minutes)',
+				'Assign the appropriate Autopilot profile',
+				'Reboot the device and proceed through OOBE',
+			],
+			commands: [
+				{ label: 'Set execution policy', cmd: 'Set-ExecutionPolicy -Scope Process -ExecutionPolicy RemoteSigned' },
+				{ label: 'Install script', cmd: 'Install-Script -Name Get-WindowsAutopilotInfo -Force' },
+				{ label: 'Extract hash to CSV', cmd: 'Get-WindowsAutopilotInfo -OutputFile C:\\hash.csv' },
+			],
+			note: 'You may need to set the execution policy before installing the script.',
+		},
+		{
+			title: 'Enroll Directly to Tenant (Online)',
+			description: 'Uploads the hardware hash directly to the tenant without saving a CSV. Fastest method when you have network access during provisioning.',
+			steps: [
+				'Boot the device to the OOBE screen',
+				'Press Shift + F10 to open a command prompt',
+				'Launch PowerShell by typing: powershell',
+				'Install the script if not present (see command below)',
+				'Run the online upload command — you will be prompted to sign in to the tenant',
+				'Verify the device appears in Intune under Devices → Enrollment → Autopilot → Devices',
+				'Assign the appropriate Autopilot profile if not assigned via dynamic group',
+				'Reboot the device and proceed through OOBE',
+			],
+			commands: [
+				{ label: 'Upload hash directly to tenant', cmd: 'Get-WindowsAutopilotInfo -Online' },
+				{ label: 'Upload and auto-assign profile', cmd: 'Get-WindowsAutopilotInfo -Online -Assign' },
+			],
+			note: 'Use -Assign to automatically apply the default Autopilot profile. You need Global Admin or Intune Administrator permissions in the target tenant.',
+		},
+		{
+			title: 'Hybrid Entra Join (Entra ID + On-Prem AD)',
+			description: 'Used at clients with on-premises Active Directory synced to Entra ID via Azure AD Connect. Requires the Intune Connector for Active Directory on a domain-joined server at the client.',
+			steps: [
+				'Confirm Azure AD Connect is running and syncing at the client',
+				'Confirm the Intune Connector for Active Directory is installed and healthy — check via Intune → Devices → Enrollment → Windows → Intune Connector for Active Directory',
+				'Enroll the device in Autopilot via product key, hash CSV, or online method',
+				'Assign a Hybrid Azure AD Join Autopilot profile — profile type must be set to Hybrid Azure AD joined, not Azure AD joined',
+				'Ensure the device has line-of-sight to a domain controller during OOBE — either on the client\'s network or via VPN',
+				'Boot the device through OOBE — it will join the on-prem domain and register in Entra ID',
+				'Verify in Entra ID: Devices → All Devices — join type should show Hybrid Azure AD joined',
+			],
+			note: 'If the device fails to join the domain during OOBE, it is almost always a connectivity issue — the device needs to reach a DC. Also verify the Intune Connector service is running on the server.',
+		},
+	];
+
+	// ── PRINTING ──────────────────────────────────────────────────────────────
+
+	type PrintEntry = {
+		title: string;
+		description?: string;
+		steps: string[];
+		commands?: { label: string; cmd: string }[];
+		note?: string;
+	};
+
+	const printEntries: PrintEntry[] = [
+		{
+			title: 'Open Print Management',
+			steps: [
+				'Press Win + R, type printmanagement.msc and press Enter',
+				'Or via Server Manager → Tools → Print Management',
+			],
+			commands: [
+				{ label: 'Open Print Management', cmd: 'printmanagement.msc' },
+			],
+		},
+		{
+			title: 'Export Printers',
+			description: 'Export all printers and their settings from a print server for backup or migration.',
+			steps: [
+				'Open Print Management',
+				'In the left pane, right-click the print server you want to export from',
+				'Select Export printers to a file',
+				'Choose a location and save the .printerExport file',
+			],
+			note: 'The .printerExport file includes printer queues, drivers, ports, and preferences. Useful for quick restores after a server migration.',
+		},
+		{
+			title: 'Import Printers',
+			description: 'Restore printers from a previously exported .printerExport file.',
+			steps: [
+				'Open Print Management',
+				'In the left pane, right-click the target print server',
+				'Select Import printers from a file',
+				'Browse to the .printerExport file and follow the import wizard',
+				'Verify all printers appear correctly after import',
+			],
+			note: 'If drivers are missing on the new server, the import will prompt you to install them. Have the correct driver packages ready beforehand.',
+		},
+	];
 </script>
 
 <svelte:head><title>Work — olfke.be</title></svelte:head>
@@ -169,240 +304,285 @@
 			<div class="ph-swatch" style="background:var(--teal)"></div>
 		</header>
 
-		<!-- SHORTCUTS -->
-		<section class="content-section">
-			{#each sections as section}
+		<!-- TABS -->
+		<div class="tabs-bar">
+			<button class="tab" class:active={activeTab === 'general'}  on:click={() => activeTab = 'general'}>General</button>
+			<button class="tab" class:active={activeTab === 'intune'}   on:click={() => activeTab = 'intune'}>Intune</button>
+			<button class="tab" class:active={activeTab === 'printing'} on:click={() => activeTab = 'printing'}>Printing</button>
+		</div>
+
+		<!-- ── GENERAL TAB ─────────────────────────────────────────────────── -->
+		{#if activeTab === 'general'}
+
+			<section class="content-section">
+				{#each sections as section}
+					<div class="shortcut-group">
+						<div class="sg-header">
+							<div class="sg-dot" style="background:{section.color}"></div>
+							<h2 class="sg-title">{section.title}</h2>
+						</div>
+						<div class="sg-items">
+							{#each section.items as item}
+								<div class="sg-item">
+									<div class="si-label">{item.label}</div>
+									{#if item.cmd}
+										<div class="si-cmd-wrap">
+											{#if item.run}
+												<span class="si-prefix mono">⊞ + R &nbsp;›</span>
+											{/if}
+											<code class="si-cmd">{item.cmd}</code>
+											<button
+												class="si-copy"
+												class:copied={copied === item.cmd}
+												on:click={() => copy(item.cmd ?? '', item.cmd ?? '')}
+											>
+												{copied === item.cmd ? '✓' : 'copy'}
+											</button>
+										</div>
+									{/if}
+									{#if item.note}
+										<div class="si-note">{item.note}</div>
+									{/if}
+								</div>
+							{/each}
+						</div>
+					</div>
+				{/each}
+			</section>
+
+			<section class="content-section cs-alt">
 				<div class="shortcut-group">
 					<div class="sg-header">
-						<div class="sg-dot" style="background:{section.color}"></div>
-						<h2 class="sg-title">{section.title}</h2>
+						<div class="sg-dot" style="background:#b83232"></div>
+						<h2 class="sg-title">Network Troubleshooting — Bottom Up</h2>
+					</div>
+					<p class="sg-intro">Work from physical layer up. Confirm each layer before moving to the next.</p>
+					<div class="osi-stack">
+						<div class="osi-layer">
+							<div class="osi-left"><div class="osi-num">L1</div><div class="osi-name">Physical</div></div>
+							<div class="osi-checks">
+								<div class="osi-check">Cable plugged in, link light on switch/NIC?</div>
+								<div class="osi-check">Try different port or cable</div>
+								<div class="osi-check">Check NIC in Device Manager — no yellow flag</div>
+								<div class="osi-cmd"><code>ipconfig</code> — is there an adapter at all?</div>
+							</div>
+						</div>
+						<div class="osi-layer">
+							<div class="osi-left"><div class="osi-num">L2</div><div class="osi-name">Data Link</div></div>
+							<div class="osi-checks">
+								<div class="osi-check">APIPA address (169.254.x.x)? → DHCP not reaching</div>
+								<div class="osi-check">Verify VLAN assignment on switch port</div>
+								<div class="osi-cmd"><code>arp -a</code> — can you see the gateway MAC?</div>
+								<div class="osi-cmd"><code>ipconfig /all</code> — check MAC, adapter state</div>
+							</div>
+						</div>
+						<div class="osi-layer">
+							<div class="osi-left"><div class="osi-num">L3</div><div class="osi-name">Network</div></div>
+							<div class="osi-checks">
+								<div class="osi-check">Correct IP, subnet mask and default gateway?</div>
+								<div class="osi-check">Ping 127.0.0.1 → stack alive</div>
+								<div class="osi-check">Ping own IP → NIC responding</div>
+								<div class="osi-check">Ping gateway → local routing works</div>
+								<div class="osi-check">Ping 8.8.8.8 → internet reachability (no DNS yet)</div>
+								<div class="osi-cmd"><code>route print</code> — correct default route?</div>
+								<div class="osi-cmd"><code>tracert 8.8.8.8</code> — where does it stop?</div>
+							</div>
+						</div>
+						<div class="osi-layer">
+							<div class="osi-left"><div class="osi-num">L4</div><div class="osi-name">Transport</div></div>
+							<div class="osi-checks">
+								<div class="osi-check">Can you reach the port? Firewall blocking it?</div>
+								<div class="osi-check">TCP vs UDP — right protocol?</div>
+								<div class="osi-cmd"><code>Test-NetConnection -ComputerName &lt;host&gt; -Port &lt;port&gt;</code></div>
+								<div class="osi-cmd"><code>netstat -ano | findstr :&lt;port&gt;</code> — is it listening?</div>
+							</div>
+						</div>
+						<div class="osi-layer">
+							<div class="osi-left"><div class="osi-num">L7</div><div class="osi-name">Application</div></div>
+							<div class="osi-checks">
+								<div class="osi-check">Ping by name vs IP — name fails but IP works? → DNS</div>
+								<div class="osi-check">Flush DNS: <code>ipconfig /flushdns</code></div>
+								<div class="osi-check">Check application logs / Event Viewer</div>
+								<div class="osi-check">Auth issue? Test with explicit credentials</div>
+								<div class="osi-check">Certificate error? Check validity + chain</div>
+								<div class="osi-cmd"><code>nslookup &lt;host&gt; &lt;dns-server&gt;</code> — test specific DNS</div>
+							</div>
+						</div>
+						<div class="osi-layer osi-vpn">
+							<div class="osi-left"><div class="osi-num">VPN</div><div class="osi-name">Extra</div></div>
+							<div class="osi-checks">
+								<div class="osi-check">Split tunnel or full tunnel? What routes are pushed?</div>
+								<div class="osi-check">Correct subnet mask in VPN profile? (classic: /23 pushed instead of /22)</div>
+								<div class="osi-check">Can ping some IPs in range but not all? → netmask issue</div>
+								<div class="osi-check">DC agent issue on firewall → restart the DC agent service</div>
+								<div class="osi-cmd"><code>route print</code> while connected — VPN routes present?</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</section>
+
+			<section class="content-section">
+				<div class="shortcut-group">
+					<div class="sg-header">
+						<div class="sg-dot" style="background:var(--teal)"></div>
+						<h2 class="sg-title">Docker</h2>
 					</div>
 					<div class="sg-items">
-						{#each section.items as item}
+						{#each docker as item}
 							<div class="sg-item">
 								<div class="si-label">{item.label}</div>
-								{#if item.cmd}
-									<div class="si-cmd-wrap">
-										{#if item.run}
-											<span class="si-prefix mono">⊞ + R &nbsp;›</span>
-										{/if}
-										<code class="si-cmd">{item.cmd}</code>
-										<button
-											class="si-copy"
-											class:copied={copied === item.cmd}
-											on:click={() => copy(item.cmd, item.cmd)}
-										>
-											{copied === item.cmd ? '✓' : 'copy'}
-										</button>
-									</div>
-								{/if}
-								{#if item.note}
-									<div class="si-note">{item.note}</div>
-								{/if}
+								<div class="si-cmd-wrap">
+									<code class="si-cmd">{item.cmd}</code>
+									<button class="si-copy" class:copied={copied === item.cmd} on:click={() => copy(item.cmd, item.cmd)}>
+										{copied === item.cmd ? '✓' : 'copy'}
+									</button>
+								</div>
+								{#if item.note}<div class="si-note">{item.note}</div>{/if}
 							</div>
 						{/each}
 					</div>
 				</div>
-			{/each}
-		</section>
-
-		<!-- BOTTOM-UP TROUBLESHOOTING -->
-		<section class="content-section cs-alt">
-			<div class="shortcut-group">
-				<div class="sg-header">
-					<div class="sg-dot" style="background:#b83232"></div>
-					<h2 class="sg-title">Network Troubleshooting — Bottom Up</h2>
-				</div>
-				<p class="sg-intro">Work from physical layer up. Confirm each layer before moving to the next.</p>
-				<div class="osi-stack">
-
-					<div class="osi-layer">
-						<div class="osi-left">
-							<div class="osi-num">L1</div>
-							<div class="osi-name">Physical</div>
-						</div>
-						<div class="osi-checks">
-							<div class="osi-check">Cable plugged in, link light on switch/NIC?</div>
-							<div class="osi-check">Try different port or cable</div>
-							<div class="osi-check">Check NIC in Device Manager — no yellow flag</div>
-							<div class="osi-cmd"><code>ipconfig</code> — is there an adapter at all?</div>
-						</div>
+				<div class="shortcut-group" style="margin-top:2.5rem">
+					<div class="sg-header">
+						<div class="sg-dot" style="background:var(--orange)"></div>
+						<h2 class="sg-title">Docker Compose</h2>
 					</div>
-
-					<div class="osi-layer">
-						<div class="osi-left">
-							<div class="osi-num">L2</div>
-							<div class="osi-name">Data Link</div>
-						</div>
-						<div class="osi-checks">
-							<div class="osi-check">APIPA address (169.254.x.x)? → DHCP not reaching</div>
-							<div class="osi-check">Verify VLAN assignment on switch port</div>
-							<div class="osi-cmd"><code>arp -a</code> — can you see the gateway MAC?</div>
-							<div class="osi-cmd"><code>ipconfig /all</code> — check MAC, adapter state</div>
-						</div>
-					</div>
-
-					<div class="osi-layer">
-						<div class="osi-left">
-							<div class="osi-num">L3</div>
-							<div class="osi-name">Network</div>
-						</div>
-						<div class="osi-checks">
-							<div class="osi-check">Correct IP, subnet mask and default gateway?</div>
-							<div class="osi-check">Ping 127.0.0.1 → stack alive</div>
-							<div class="osi-check">Ping own IP → NIC responding</div>
-							<div class="osi-check">Ping gateway → local routing works</div>
-							<div class="osi-check">Ping 8.8.8.8 → internet reachability (no DNS yet)</div>
-							<div class="osi-cmd"><code>route print</code> — correct default route?</div>
-							<div class="osi-cmd"><code>tracert 8.8.8.8</code> — where does it stop?</div>
-						</div>
-					</div>
-
-					<div class="osi-layer">
-						<div class="osi-left">
-							<div class="osi-num">L4</div>
-							<div class="osi-name">Transport</div>
-						</div>
-						<div class="osi-checks">
-							<div class="osi-check">Can you reach the port? Firewall blocking it?</div>
-							<div class="osi-check">TCP vs UDP — right protocol?</div>
-							<div class="osi-cmd"><code>Test-NetConnection -ComputerName &lt;host&gt; -Port &lt;port&gt;</code></div>
-							<div class="osi-cmd"><code>netstat -ano | findstr :&lt;port&gt;</code> — is it listening?</div>
-						</div>
-					</div>
-
-					<div class="osi-layer">
-						<div class="osi-left">
-							<div class="osi-num">L7</div>
-							<div class="osi-name">Application</div>
-						</div>
-						<div class="osi-checks">
-							<div class="osi-check">Ping by name vs IP — name fails but IP works? → DNS</div>
-							<div class="osi-check">Flush DNS: <code>ipconfig /flushdns</code></div>
-							<div class="osi-check">Check application logs / Event Viewer</div>
-							<div class="osi-check">Auth issue? Test with explicit credentials</div>
-							<div class="osi-check">Certificate error? Check validity + chain</div>
-							<div class="osi-cmd"><code>nslookup &lt;host&gt; &lt;dns-server&gt;</code> — test specific DNS</div>
-						</div>
-					</div>
-
-					<div class="osi-layer osi-vpn">
-						<div class="osi-left">
-							<div class="osi-num">VPN</div>
-							<div class="osi-name">Extra</div>
-						</div>
-						<div class="osi-checks">
-							<div class="osi-check">Split tunnel or full tunnel? What routes are pushed?</div>
-							<div class="osi-check">Correct subnet mask in VPN profile? (classic: /23 pushed instead of /22)</div>
-							<div class="osi-check">Can ping some IPs in range but not all? → netmask issue</div>
-							<div class="osi-check">DC agent issue on firewall → restart the DC agent service</div>
-							<div class="osi-cmd"><code>route print</code> while connected — VPN routes present?</div>
-						</div>
-					</div>
-
-				</div>
-			</div>
-		</section>
-
-		<!-- DOCKER -->
-		<section class="content-section">
-			<div class="shortcut-group">
-				<div class="sg-header">
-					<div class="sg-dot" style="background:var(--teal)"></div>
-					<h2 class="sg-title">Docker</h2>
-				</div>
-				<div class="sg-items">
-					{#each docker as item}
-						<div class="sg-item">
-							<div class="si-label">{item.label}</div>
-							<div class="si-cmd-wrap">
-								<code class="si-cmd">{item.cmd}</code>
-								<button
-									class="si-copy"
-									class:copied={copied === item.cmd}
-									on:click={() => copy(item.cmd, item.cmd)}
-								>
-									{copied === item.cmd ? '✓' : 'copy'}
-								</button>
+					<div class="sg-items">
+						{#each compose as item}
+							<div class="sg-item">
+								<div class="si-label">{item.label}</div>
+								<div class="si-cmd-wrap">
+									<code class="si-cmd">{item.cmd}</code>
+									<button class="si-copy" class:copied={copied === item.cmd} on:click={() => copy(item.cmd, item.cmd)}>
+										{copied === item.cmd ? '✓' : 'copy'}
+									</button>
+								</div>
+								{#if item.note}<div class="si-note warning-note">{item.note}</div>{/if}
 							</div>
-							{#if item.note}
-								<div class="si-note">{item.note}</div>
-							{/if}
-						</div>
-					{/each}
-				</div>
-			</div>
-
-			<div class="shortcut-group" style="margin-top:2.5rem">
-				<div class="sg-header">
-					<div class="sg-dot" style="background:var(--orange)"></div>
-					<h2 class="sg-title">Docker Compose</h2>
-				</div>
-				<div class="sg-items">
-					{#each compose as item}
-						<div class="sg-item">
-							<div class="si-label">{item.label}</div>
-							<div class="si-cmd-wrap">
-								<code class="si-cmd">{item.cmd}</code>
-								<button
-									class="si-copy"
-									class:copied={copied === item.cmd}
-									on:click={() => copy(item.cmd, item.cmd)}
-								>
-									{copied === item.cmd ? '✓' : 'copy'}
-								</button>
-							</div>
-							{#if item.note}
-								<div class="si-note warning-note">{item.note}</div>
-							{/if}
-						</div>
-					{/each}
-				</div>
-			</div>
-		</section>
-
-		<!-- TOOLS -->
-		<section class="content-section cs-alt">
-			<div class="shortcut-group">
-				<div class="sg-header">
-					<div class="sg-dot" style="background:var(--mustard)"></div>
-					<h2 class="sg-title">Online Tools</h2>
-				</div>
-				<div class="tools-grid">
-					{#each tools as tool}
-						<a href={tool.url} target="_blank" rel="noopener" class="tool-item">
-							<div class="ti-name">{tool.label}</div>
-							<div class="ti-desc">{tool.desc}</div>
-							<span class="ti-arrow">↗</span>
-						</a>
-					{/each}
-				</div>
-			</div>
-		</section>
-
-		<!-- PORTS -->
-		<section class="content-section">
-			<div class="shortcut-group">
-				<div class="sg-header">
-					<div class="sg-dot" style="background:var(--orange)"></div>
-					<h2 class="sg-title">Common Ports</h2>
-				</div>
-				<div class="ports-table">
-					<div class="pt-head">
-						<span>Port</span>
-						<span>Protocol</span>
-						<span>Service</span>
+						{/each}
 					</div>
-					{#each ports as p}
-						<div class="pt-row">
-							<span class="pt-port mono">{p.port}</span>
-							<span class="pt-proto mono">{p.proto}</span>
-							<span class="pt-svc">{p.service}</span>
-						</div>
-					{/each}
 				</div>
-			</div>
-		</section>
+			</section>
+
+			<section class="content-section cs-alt">
+				<div class="shortcut-group">
+					<div class="sg-header">
+						<div class="sg-dot" style="background:var(--mustard)"></div>
+						<h2 class="sg-title">Online Tools</h2>
+					</div>
+					<div class="tools-grid">
+						{#each tools as tool}
+							<a href={tool.url} target="_blank" rel="noopener" class="tool-item">
+								<div class="ti-name">{tool.label}</div>
+								<div class="ti-desc">{tool.desc}</div>
+								<span class="ti-arrow">↗</span>
+							</a>
+						{/each}
+					</div>
+				</div>
+			</section>
+
+			<section class="content-section">
+				<div class="shortcut-group">
+					<div class="sg-header">
+						<div class="sg-dot" style="background:var(--orange)"></div>
+						<h2 class="sg-title">Common Ports</h2>
+					</div>
+					<div class="ports-table">
+						<div class="pt-head"><span>Port</span><span>Protocol</span><span>Service</span></div>
+						{#each ports as p}
+							<div class="pt-row">
+								<span class="pt-port mono">{p.port}</span>
+								<span class="pt-proto mono">{p.proto}</span>
+								<span class="pt-svc">{p.service}</span>
+							</div>
+						{/each}
+					</div>
+				</div>
+			</section>
+
+		<!-- ── INTUNE TAB ──────────────────────────────────────────────────── -->
+		{:else if activeTab === 'intune'}
+
+			<section class="content-section">
+				{#each intuneEntries as entry, i}
+					<div class="procedure-card" class:cs-alt={i % 2 !== 0}>
+						<div class="sg-header">
+							<div class="sg-dot" style="background:var(--teal)"></div>
+							<h2 class="sg-title">{entry.title}</h2>
+						</div>
+						{#if entry.description}
+							<p class="sg-intro">{entry.description}</p>
+						{/if}
+						<ol class="steps-list">
+							{#each entry.steps as step}
+								<li>{step}</li>
+							{/each}
+						</ol>
+						{#if entry.commands}
+							<div class="sg-items cmd-block">
+								{#each entry.commands as c}
+									<div class="sg-item">
+										<div class="si-label">{c.label}</div>
+										<div class="si-cmd-wrap">
+											<code class="si-cmd">{c.cmd}</code>
+											<button class="si-copy" class:copied={copied === c.cmd} on:click={() => copy(c.cmd, c.cmd)}>
+												{copied === c.cmd ? '✓' : 'copy'}
+											</button>
+										</div>
+									</div>
+								{/each}
+							</div>
+						{/if}
+						{#if entry.note}
+							<div class="procedure-note">{entry.note}</div>
+						{/if}
+					</div>
+				{/each}
+			</section>
+
+		<!-- ── PRINTING TAB ────────────────────────────────────────────────── -->
+		{:else if activeTab === 'printing'}
+
+			<section class="content-section">
+				{#each printEntries as entry, i}
+					<div class="procedure-card" class:cs-alt={i % 2 !== 0}>
+						<div class="sg-header">
+							<div class="sg-dot" style="background:var(--mustard)"></div>
+							<h2 class="sg-title">{entry.title}</h2>
+						</div>
+						{#if entry.description}
+							<p class="sg-intro">{entry.description}</p>
+						{/if}
+						<ol class="steps-list">
+							{#each entry.steps as step}
+								<li>{step}</li>
+							{/each}
+						</ol>
+						{#if entry.commands}
+							<div class="sg-items cmd-block">
+								{#each entry.commands as c}
+									<div class="sg-item">
+										<div class="si-label">{c.label}</div>
+										<div class="si-cmd-wrap">
+											<code class="si-cmd">{c.cmd}</code>
+											<button class="si-copy" class:copied={copied === c.cmd} on:click={() => copy(c.cmd, c.cmd)}>
+												{copied === c.cmd ? '✓' : 'copy'}
+											</button>
+										</div>
+									</div>
+								{/each}
+							</div>
+						{/if}
+						{#if entry.note}
+							<div class="procedure-note">{entry.note}</div>
+						{/if}
+					</div>
+				{/each}
+			</section>
+
+		{/if}
 
 	</main>
 </div>
@@ -449,6 +629,34 @@ main { display: flex; flex-direction: column; }
 .ph-desc { font-family: var(--font-body); font-size: 0.9rem; font-weight: 300; color: var(--char-lt); }
 .ph-swatch { width: 120px; flex-shrink: 0; }
 
+/* Tabs */
+.tabs-bar {
+	display: flex;
+	border-bottom: 1px solid var(--paper);
+	padding: 0 5rem;
+	gap: 0;
+	background: var(--cream);
+	position: sticky;
+	top: 0;
+	z-index: 10;
+}
+.tab {
+	font-family: var(--font-body);
+	font-size: 0.75rem;
+	font-weight: 500;
+	letter-spacing: 0.08em;
+	color: var(--char-lt);
+	background: none;
+	border: none;
+	border-bottom: 2px solid transparent;
+	padding: 1rem 1.5rem;
+	cursor: pointer;
+	transition: color 0.15s, border-color 0.15s;
+	margin-bottom: -1px;
+}
+.tab:hover { color: var(--char); }
+.tab.active { color: var(--char); border-bottom-color: var(--teal); }
+
 .content-section { padding: 3rem 5rem; border-bottom: 1px solid var(--paper); }
 .cs-alt { background: var(--warm); }
 
@@ -470,7 +678,7 @@ main { display: flex; flex-direction: column; }
 .sg-item:hover { background: rgba(0,0,0,0.02); margin: 0 -1rem; padding: 0.65rem 1rem; }
 .si-label { font-family: var(--font-body); font-size: 0.85rem; color: var(--char-mid); }
 .si-cmd-wrap { display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap; }
-.si-prefix { font-size: 0.58rem; color: var(--char-lt); letter-spacing: 0.05em; white-space: nowrap; }
+.si-prefix { font-size: 0.58rem; color: var(--char-lt); letter-spacing: 0.05em; white-space: nowrap; font-family: var(--font-mono); }
 .si-cmd {
 	font-family: var(--font-mono); font-size: 0.7rem;
 	background: var(--paper); color: var(--char);
@@ -486,6 +694,48 @@ main { display: flex; flex-direction: column; }
 .si-copy.copied { border-color: var(--sage); color: var(--sage); }
 .si-note { font-family: var(--font-mono); font-size: 0.6rem; color: var(--char-lt); font-style: italic; grid-column: 2; }
 .warning-note { color: var(--red, #b83232) !important; }
+
+/* Procedure cards (Intune / Printing) */
+.procedure-card {
+	padding: 2rem 0;
+	border-bottom: 1px solid var(--paper);
+	display: flex;
+	flex-direction: column;
+	gap: 1rem;
+}
+.procedure-card:last-child { border-bottom: none; }
+
+.steps-list {
+	margin: 0 0 0 1.25rem;
+	padding: 0;
+	display: flex;
+	flex-direction: column;
+	gap: 0.45rem;
+}
+.steps-list li {
+	font-family: var(--font-body);
+	font-size: 0.85rem;
+	color: var(--char-mid);
+	line-height: 1.5;
+	padding-left: 0.25rem;
+}
+
+.cmd-block {
+	margin-top: 0.25rem;
+	border: 1px solid var(--paper);
+	padding: 0 1rem;
+}
+
+.procedure-note {
+	font-family: var(--font-body);
+	font-size: 0.78rem;
+	font-weight: 300;
+	color: var(--char-lt);
+	background: var(--warm);
+	border-left: 3px solid var(--teal);
+	padding: 0.6rem 0.9rem;
+	line-height: 1.6;
+}
 
 /* OSI Stack */
 .osi-stack { display: flex; flex-direction: column; border: 1px solid var(--paper); margin-top: 0.5rem; }
@@ -538,6 +788,7 @@ footer {
 	.ph-swatch { width: 60px; }
 	.sg-item { grid-template-columns: 1fr; gap: 0.4rem; }
 	.tools-grid { grid-template-columns: 1fr 1fr; }
+	.tabs-bar { padding: 0 1.5rem; }
 	footer { padding: 1.25rem 1.5rem; }
 }
 </style>
