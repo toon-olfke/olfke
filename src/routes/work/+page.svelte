@@ -144,6 +144,8 @@
 		{ label: 'Cloudflare Dash', url: 'https://dash.cloudflare.com', desc: 'DNS, tunnels, firewall' },
 		{ label: 'Docker Hub', url: 'https://hub.docker.com', desc: 'Container image registry' },
 		{ label: 'Regex101', url: 'https://regex101.com', desc: 'Regex tester & explainer' },
+		{ label: 'Browserling', url: 'https://www.browserling.com', desc: 'Cross-browser testing online' },
+		{ label: 'URLScan.io', url: 'https://urlscan.io', desc: 'URL & domain scanner' },
 	];
 
 	const ports = [
