@@ -1,9 +1,16 @@
 <script lang="ts">
-	type Item = { label: string; cmd?: string; note?: string; run?: boolean };
-	type DockerItem = { label: string; cmd: string; note?: string };
+	type Item      = { label: string; cmd?: string; note?: string; run?: boolean };
+	type CmdItem   = { label: string; cmd: string; note?: string };
+	type ProcEntry = {
+		title: string;
+		description?: string;
+		steps: string[];
+		commands?: { label: string; cmd: string }[];
+		note?: string;
+	};
 
 	let copied = '';
-	let activeTab: 'general' | 'intune' | 'printing' = 'general';
+	let activeTab: 'general' | 'network' | 'docker' | 'teams' | 'intune' | 'printing' | 'tools' = 'general';
 
 	function copy(text: string, key: string) {
 		navigator.clipboard.writeText(text);
@@ -11,160 +18,142 @@
 		setTimeout(() => (copied = ''), 2000);
 	}
 
+	const tabs: { id: typeof activeTab; label: string }[] = [
+		{ id: 'general',  label: 'General'  },
+		{ id: 'network',  label: 'Network'  },
+		{ id: 'docker',   label: 'Docker'   },
+		{ id: 'teams',    label: 'Teams'    },
+		{ id: 'intune',   label: 'Intune'   },
+		{ id: 'printing', label: 'Printing' },
+		{ id: 'tools',    label: 'Tools'    },
+	];
+
 	// ── GENERAL ──────────────────────────────────────────────────────────────
 
-	const sections = [
+	const sections: { title: string; color: string; items: Item[] }[] = [
 		{
 			title: 'Windows Run Commands',
 			color: 'var(--teal)',
 			items: [
-				{ label: 'Open RDP', cmd: 'mstsc', run: true },
-				{ label: 'Control Panel', cmd: 'control', run: true },
-				{ label: 'User Management', cmd: 'lusrmgr.msc', run: true },
-				{ label: 'Device Manager', cmd: 'devmgmt.msc', run: true },
-				{ label: 'Settings', cmd: 'ms-settings:', run: true },
-				{ label: 'System Settings', cmd: 'ms-settings:system', run: true },
-				{ label: 'Accounts Settings', cmd: 'ms-settings:accounts', run: true },
-				{ label: 'Credential Manager', cmd: 'control keymgr.dll', run: true },
-				{ label: 'Registry Editor', cmd: 'regedit', run: true },
-				{ label: 'Network Connections', cmd: 'ncpa.cpl', run: true },
-				{ label: 'Certificate Manager', cmd: 'certlm.msc', run: true },
-				{ label: 'Event Viewer', cmd: 'eventvwr.msc', run: true },
-				{ label: 'Group Policy Editor', cmd: 'gpedit.msc', run: true },
-				{ label: 'Services', cmd: 'services.msc', run: true },
-				{ label: 'Task Scheduler', cmd: 'taskschd.msc', run: true },
-				{ label: 'Disk Management', cmd: 'diskmgmt.msc', run: true },
+				{ label: 'Open RDP',           cmd: 'mstsc',                run: true },
+				{ label: 'Control Panel',       cmd: 'control',              run: true },
+				{ label: 'User Management',     cmd: 'lusrmgr.msc',          run: true },
+				{ label: 'Device Manager',      cmd: 'devmgmt.msc',          run: true },
+				{ label: 'Settings',            cmd: 'ms-settings:',         run: true },
+				{ label: 'System Settings',     cmd: 'ms-settings:system',   run: true },
+				{ label: 'Accounts Settings',   cmd: 'ms-settings:accounts', run: true },
+				{ label: 'Credential Manager',  cmd: 'control keymgr.dll',   run: true },
+				{ label: 'Registry Editor',     cmd: 'regedit',              run: true },
+				{ label: 'Network Connections', cmd: 'ncpa.cpl',             run: true },
+				{ label: 'Certificate Manager', cmd: 'certlm.msc',           run: true },
+				{ label: 'Event Viewer',        cmd: 'eventvwr.msc',         run: true },
+				{ label: 'Group Policy Editor', cmd: 'gpedit.msc',           run: true },
+				{ label: 'Services',            cmd: 'services.msc',         run: true },
+				{ label: 'Task Scheduler',      cmd: 'taskschd.msc',         run: true },
+				{ label: 'Disk Management',     cmd: 'diskmgmt.msc',         run: true },
 			]
 		},
 		{
 			title: 'CMD / PowerShell',
 			color: 'var(--orange)',
 			items: [
-				{ label: 'See computer SN', cmd: 'set comp', run: false },
-				{ label: 'Bypass UAC — launch cmd as admin', cmd: 'runas /user:admin@domain.com cmd.exe', run: false },
-				{ label: 'Add local admin (Azure AD)', cmd: 'Net localgroup Administrators /add "AzureAD\\<UPN>"', run: false },
-				{ label: 'Get serial number (PS)', cmd: 'Get-WmiObject win32_bios | Select-Object SerialNumber', run: false },
-				{ label: 'Flush DNS', cmd: 'ipconfig /flushdns', run: false },
-				{ label: 'Release & renew IP', cmd: 'ipconfig /release && ipconfig /renew', run: false },
-				{ label: 'Check open ports', cmd: 'netstat -ano | findstr LISTENING', run: false },
-				{ label: 'Test connectivity', cmd: 'Test-NetConnection -ComputerName <host> -Port <port>', run: false },
-				{ label: 'Get AD user info (PS)', cmd: 'Get-ADUser -Identity <user> -Properties *', run: false },
-				{ label: 'Force GP update', cmd: 'gpupdate /force', run: false },
+				{ label: 'See computer SN',                  cmd: 'set comp' },
+				{ label: 'Bypass UAC — launch cmd as admin', cmd: 'runas /user:admin@domain.com cmd.exe' },
+				{ label: 'Add local admin (Azure AD)',        cmd: 'Net localgroup Administrators /add "AzureAD\\<UPN>"' },
+				{ label: 'Get serial number (PS)',            cmd: 'Get-WmiObject win32_bios | Select-Object SerialNumber' },
+				{ label: 'Flush DNS',                        cmd: 'ipconfig /flushdns' },
+				{ label: 'Release & renew IP',               cmd: 'ipconfig /release && ipconfig /renew' },
+				{ label: 'Force GP update',                  cmd: 'gpupdate /force' },
+				{ label: 'Get AD user info (PS)',             cmd: 'Get-ADUser -Identity <user> -Properties *' },
 			]
 		},
 		{
 			title: 'Outlook',
 			color: 'var(--mustard)',
 			items: [
-				{ label: 'Reset folder names (language fix)', cmd: 'Outlook.exe /resetfolderstructure', run: false },
-				{ label: 'Safe mode', cmd: 'Outlook.exe /safe', run: false },
-				{ label: 'Rebuild profile', cmd: 'Outlook.exe /cleanprofile', run: false },
-				{ label: 'Clear autocomplete cache', cmd: 'Outlook.exe /cleanautocompletecache', run: false },
+				{ label: 'Reset folder names (language fix)', cmd: 'Outlook.exe /resetfolderstructure' },
+				{ label: 'Safe mode',                         cmd: 'Outlook.exe /safe' },
+				{ label: 'Rebuild profile',                   cmd: 'Outlook.exe /cleanprofile' },
+				{ label: 'Clear autocomplete cache',          cmd: 'Outlook.exe /cleanautocompletecache' },
 			]
 		},
 		{
 			title: 'Bypass OOBE',
 			color: 'var(--sage)',
 			items: [
-				{ label: 'Skip network setup', cmd: 'OOBE\\bypassnro', note: 'Shift + F10 first', run: false },
-				{ label: 'Local account only', cmd: 'start ms-cxh:localonly', run: false },
-			]
-		},
-		{
-			title: 'Teams — Call Queues & Auto Attendants',
-			color: 'var(--purple, #6264a7)',
-			items: [
-				{ label: 'Resource accounts (CQ/AA) require a resource license', cmd: '', note: 'Assign license before configuring', run: false },
-				{ label: 'Create Call Queue before Auto Attendant', cmd: '', note: 'AA redirects to CQ, not the other way around', run: false },
-				{ label: 'Enable presence-based routing on CQ', cmd: '', note: 'Agents only ring when available', run: false },
-				{ label: 'Set ring timeout lower for tighter exception handling', cmd: '', note: 'Shorter timeout = faster fallback to overflow action', run: false },
-				{ label: 'AA timeout action → Voice App → target CQ', cmd: '', note: 'Redirect to a queue or voicemail on no answer', run: false },
+				{ label: 'Skip network setup', cmd: 'OOBE\\bypassnro',       note: 'Shift + F10 first' },
+				{ label: 'Local account only', cmd: 'start ms-cxh:localonly' },
 			]
 		},
 	];
 
-	const docker: DockerItem[] = [
-		{ label: 'List running containers', cmd: 'docker ps' },
-		{ label: 'List all containers', cmd: 'docker ps -a' },
-		{ label: 'List images', cmd: 'docker images' },
-		{ label: 'Pull image', cmd: 'docker pull <image>:<tag>' },
-		{ label: 'Run container', cmd: 'docker run -d --name <name> -p <host>:<container> <image>' },
-		{ label: 'Stop container', cmd: 'docker stop <name>' },
-		{ label: 'Remove container', cmd: 'docker rm <name>' },
-		{ label: 'Remove image', cmd: 'docker rmi <image>' },
-		{ label: 'View logs', cmd: 'docker logs <name> --since 10m' },
-		{ label: 'Follow logs live', cmd: 'docker logs -f <name>' },
-		{ label: 'Exec into container', cmd: 'docker exec -it <name> /bin/bash' },
-		{ label: 'Inspect container', cmd: 'docker inspect <name>' },
-		{ label: 'View resource usage', cmd: 'docker stats' },
-		{ label: 'Prune unused images', cmd: 'docker image prune -a' },
-		{ label: 'Prune everything unused', cmd: 'docker system prune -a' },
-		{ label: 'Copy file to container', cmd: 'docker cp <file> <name>:/path/in/container' },
-		{ label: 'Copy file from container', cmd: 'docker cp <name>:/path/in/container <dest>' },
+	// ── NETWORK ───────────────────────────────────────────────────────────────
+
+	const netCmds: CmdItem[] = [
+		{ label: 'Check open ports',    cmd: 'netstat -ano | findstr LISTENING' },
+		{ label: 'Test connectivity',   cmd: 'Test-NetConnection -ComputerName <host> -Port <port>' },
+		{ label: 'Flush DNS',           cmd: 'ipconfig /flushdns' },
+		{ label: 'Release & renew IP',  cmd: 'ipconfig /release && ipconfig /renew' },
+		{ label: 'Trace route',         cmd: 'tracert <host>' },
+		{ label: 'DNS lookup',          cmd: 'nslookup <host> <dns-server>' },
+		{ label: 'Show routing table',  cmd: 'route print' },
+		{ label: 'ARP table',           cmd: 'arp -a' },
+		{ label: 'All adapter details', cmd: 'ipconfig /all' },
 	];
 
-	const compose: DockerItem[] = [
-		{ label: 'Start stack (detached)', cmd: 'docker compose up -d' },
-		{ label: 'Stop stack', cmd: 'docker compose down' },
-		{ label: 'Stop + remove volumes', cmd: 'docker compose down -v', note: '⚠ Destroys data volumes' },
-		{ label: 'Restart single service', cmd: 'docker compose restart <service>' },
-		{ label: 'Rebuild + start', cmd: 'docker compose up -d --build' },
-		{ label: 'Pull latest images', cmd: 'docker compose pull' },
-		{ label: 'View logs', cmd: 'docker compose logs -f <service>' },
+	// ── DOCKER ────────────────────────────────────────────────────────────────
+
+	const docker: CmdItem[] = [
+		{ label: 'List running containers',  cmd: 'docker ps' },
+		{ label: 'List all containers',      cmd: 'docker ps -a' },
+		{ label: 'List images',              cmd: 'docker images' },
+		{ label: 'Pull image',               cmd: 'docker pull <image>:<tag>' },
+		{ label: 'Run container',            cmd: 'docker run -d --name <n> -p <host>:<container> <image>' },
+		{ label: 'Stop container',           cmd: 'docker stop <n>' },
+		{ label: 'Remove container',         cmd: 'docker rm <n>' },
+		{ label: 'Remove image',             cmd: 'docker rmi <image>' },
+		{ label: 'View logs',                cmd: 'docker logs <n> --since 10m' },
+		{ label: 'Follow logs live',         cmd: 'docker logs -f <n>' },
+		{ label: 'Exec into container',      cmd: 'docker exec -it <n> /bin/bash' },
+		{ label: 'Inspect container',        cmd: 'docker inspect <n>' },
+		{ label: 'View resource usage',      cmd: 'docker stats' },
+		{ label: 'Prune unused images',      cmd: 'docker image prune -a' },
+		{ label: 'Prune everything unused',  cmd: 'docker system prune -a' },
+		{ label: 'Copy file to container',   cmd: 'docker cp <file> <n>:/path/in/container' },
+		{ label: 'Copy file from container', cmd: 'docker cp <n>:/path/in/container <dest>' },
+	];
+
+	const compose: CmdItem[] = [
+		{ label: 'Start stack (detached)',  cmd: 'docker compose up -d' },
+		{ label: 'Stop stack',              cmd: 'docker compose down' },
+		{ label: 'Stop + remove volumes',   cmd: 'docker compose down -v',           note: '⚠ Destroys data volumes' },
+		{ label: 'Restart single service',  cmd: 'docker compose restart <service>' },
+		{ label: 'Rebuild + start',         cmd: 'docker compose up -d --build' },
+		{ label: 'Pull latest images',      cmd: 'docker compose pull' },
+		{ label: 'View logs',               cmd: 'docker compose logs -f <service>' },
 		{ label: 'View all service status', cmd: 'docker compose ps' },
-		{ label: 'Run one-off command', cmd: 'docker compose run --rm <service> <cmd>' },
+		{ label: 'Run one-off command',     cmd: 'docker compose run --rm <service> <cmd>' },
 	];
 
-	const tools = [
-		{ label: 'Subnet Calculator', url: 'https://www.subnet-calculator.com', desc: 'CIDR / subnet math' },
-		{ label: 'CIDR.xyz', url: 'https://cidr.xyz', desc: 'Visual IP range explorer' },
-		{ label: 'MXToolbox', url: 'https://mxtoolbox.com', desc: 'DNS, MX, blacklist checks' },
-		{ label: 'SSL Labs', url: 'https://www.ssllabs.com/ssltest/', desc: 'TLS certificate audit' },
-		{ label: 'DNSChecker', url: 'https://dnschecker.org', desc: 'Global DNS propagation' },
-		{ label: 'Crontab Guru', url: 'https://crontab.guru', desc: 'Cron expression editor' },
-		{ label: 'ExplainShell', url: 'https://explainshell.com', desc: 'Explains any shell command' },
-		{ label: 'VirusTotal', url: 'https://www.virustotal.com', desc: 'File / URL / IP scanner' },
-		{ label: 'AbuseIPDB', url: 'https://www.abuseipdb.com', desc: 'Malicious IP lookup' },
-		{ label: 'Cloudflare Dash', url: 'https://dash.cloudflare.com', desc: 'DNS, tunnels, firewall' },
-		{ label: 'Docker Hub', url: 'https://hub.docker.com', desc: 'Container image registry' },
-		{ label: 'Regex101', url: 'https://regex101.com', desc: 'Regex tester & explainer' },
-	];
+	// ── TEAMS ─────────────────────────────────────────────────────────────────
 
-	const ports = [
-		{ port: '21',    proto: 'TCP',     service: 'FTP' },
-		{ port: '22',    proto: 'TCP',     service: 'SSH' },
-		{ port: '25',    proto: 'TCP',     service: 'SMTP' },
-		{ port: '53',    proto: 'TCP/UDP', service: 'DNS' },
-		{ port: '80',    proto: 'TCP',     service: 'HTTP' },
-		{ port: '443',   proto: 'TCP',     service: 'HTTPS' },
-		{ port: '445',   proto: 'TCP',     service: 'SMB' },
-		{ port: '3306',  proto: 'TCP',     service: 'MySQL' },
-		{ port: '3389',  proto: 'TCP',     service: 'RDP' },
-		{ port: '5432',  proto: 'TCP',     service: 'PostgreSQL' },
-		{ port: '5985',  proto: 'TCP',     service: 'WinRM HTTP' },
-		{ port: '5986',  proto: 'TCP',     service: 'WinRM HTTPS' },
-		{ port: '8080',  proto: 'TCP',     service: 'HTTP alt' },
-		{ port: '8443',  proto: 'TCP',     service: 'HTTPS alt' },
-		{ port: '27017', proto: 'TCP',     service: 'MongoDB' },
+	const teamsNotes: Item[] = [
+		{ label: 'Resource accounts (CQ/AA) require a resource license',  note: 'Assign license before configuring' },
+		{ label: 'Create Call Queue before Auto Attendant',                note: 'AA redirects to CQ, not the other way around' },
+		{ label: 'Enable presence-based routing on CQ',                   note: 'Agents only ring when available' },
+		{ label: 'Set ring timeout lower for tighter exception handling',  note: 'Shorter timeout = faster fallback to overflow action' },
+		{ label: 'AA timeout action → Voice App → target CQ',            note: 'Redirect to a queue or voicemail on no answer' },
 	];
 
 	// ── INTUNE ────────────────────────────────────────────────────────────────
 
-	type IntuneEntry = {
-		title: string;
-		description: string;
-		steps: string[];
-		commands?: { label: string; cmd: string }[];
-		note?: string;
-	};
-
-	const intuneEntries: IntuneEntry[] = [
+	const intuneEntries: ProcEntry[] = [
 		{
 			title: 'Enroll via Microsoft Partner Portal (Product Key)',
-			description: 'Used when you receive a new device with a product key from the vendor. Upload directly to the client\'s tenant via the Partner Portal.',
+			description: "Used when you receive a new device with a product key from the vendor. Upload directly to the client's tenant via the Partner Portal.",
 			steps: [
 				'Go to partner.microsoft.com and sign in with your partner account',
-				'Navigate to the client\'s tenant via Customers',
+				"Navigate to the client's tenant via Customers",
 				'Go to Service Management → Microsoft 365 Admin Center',
 				'Navigate to Devices → Autopilot → Devices and click Import',
 				'Enter the product key or use the bulk import option if provided by the vendor',
@@ -172,7 +161,7 @@
 				'Assign the appropriate Autopilot profile to the device or device group',
 				'Boot the device and proceed through OOBE — it should pick up the profile automatically',
 			],
-			note: 'Make sure the correct Autopilot deployment profile is assigned before the device boots. If the profile doesn\'t apply, check group assignments and try syncing in Intune.',
+			note: "Make sure the correct Autopilot deployment profile is assigned before the device boots. If the profile doesn't apply, check group assignments and try syncing in Intune.",
 		},
 		{
 			title: 'Enroll via Hardware Hash (CSV)',
@@ -181,8 +170,7 @@
 				'Boot the device to the OOBE screen',
 				'Press Shift + F10 to open a command prompt',
 				'Launch PowerShell by typing: powershell',
-				'Install the script if not present (see command below)',
-				'Extract the hash to a CSV (see command below)',
+				'Install the script and extract the hash (see commands below)',
 				'Copy the CSV off the device via USB or network share',
 				'In Intune, go to Devices → Enrollment → Autopilot → Devices and click Import',
 				'Upload the CSV and wait for the device to appear (up to 15 minutes)',
@@ -191,8 +179,8 @@
 			],
 			commands: [
 				{ label: 'Set execution policy', cmd: 'Set-ExecutionPolicy -Scope Process -ExecutionPolicy RemoteSigned' },
-				{ label: 'Install script', cmd: 'Install-Script -Name Get-WindowsAutopilotInfo -Force' },
-				{ label: 'Extract hash to CSV', cmd: 'Get-WindowsAutopilotInfo -OutputFile C:\\hash.csv' },
+				{ label: 'Install script',       cmd: 'Install-Script -Name Get-WindowsAutopilotInfo -Force' },
+				{ label: 'Extract hash to CSV',  cmd: 'Get-WindowsAutopilotInfo -OutputFile C:\\hash.csv' },
 			],
 			note: 'You may need to set the execution policy before installing the script.',
 		},
@@ -213,35 +201,27 @@
 				{ label: 'Upload hash directly to tenant', cmd: 'Get-WindowsAutopilotInfo -Online' },
 				{ label: 'Upload and auto-assign profile', cmd: 'Get-WindowsAutopilotInfo -Online -Assign' },
 			],
-			note: 'Use -Assign to automatically apply the default Autopilot profile. You need Global Admin or Intune Administrator permissions in the target tenant.',
+			note: 'Use -Assign to automatically apply the default Autopilot profile. Requires Global Admin or Intune Administrator permissions in the target tenant.',
 		},
 		{
 			title: 'Hybrid Entra Join (Entra ID + On-Prem AD)',
-			description: 'Used at clients with on-premises Active Directory synced to Entra ID via Azure AD Connect. Requires the Intune Connector for Active Directory on a domain-joined server at the client.',
+			description: "Used at clients with on-premises Active Directory synced to Entra ID via Azure AD Connect. Requires the Intune Connector for Active Directory on a domain-joined server at the client.",
 			steps: [
 				'Confirm Azure AD Connect is running and syncing at the client',
 				'Confirm the Intune Connector for Active Directory is installed and healthy — check via Intune → Devices → Enrollment → Windows → Intune Connector for Active Directory',
 				'Enroll the device in Autopilot via product key, hash CSV, or online method',
 				'Assign a Hybrid Azure AD Join Autopilot profile — profile type must be set to Hybrid Azure AD joined, not Azure AD joined',
-				'Ensure the device has line-of-sight to a domain controller during OOBE — either on the client\'s network or via VPN',
+				"Ensure the device has line-of-sight to a domain controller during OOBE — either on the client's network or via VPN",
 				'Boot the device through OOBE — it will join the on-prem domain and register in Entra ID',
 				'Verify in Entra ID: Devices → All Devices — join type should show Hybrid Azure AD joined',
 			],
-			note: 'If the device fails to join the domain during OOBE, it is almost always a connectivity issue — the device needs to reach a DC. Also verify the Intune Connector service is running on the server.',
+			note: "If the device fails to join the domain during OOBE, it is almost always a connectivity issue — the device needs to reach a DC. Also verify the Intune Connector service is running on the server.",
 		},
 	];
 
 	// ── PRINTING ──────────────────────────────────────────────────────────────
 
-	type PrintEntry = {
-		title: string;
-		description?: string;
-		steps: string[];
-		commands?: { label: string; cmd: string }[];
-		note?: string;
-	};
-
-	const printEntries: PrintEntry[] = [
+	const printEntries: ProcEntry[] = [
 		{
 			title: 'Open Print Management',
 			steps: [
@@ -276,6 +256,41 @@
 			note: 'If drivers are missing on the new server, the import will prompt you to install them. Have the correct driver packages ready beforehand.',
 		},
 	];
+
+	// ── TOOLS ─────────────────────────────────────────────────────────────────
+
+	const tools = [
+		{ label: 'Subnet Calculator', url: 'https://www.subnet-calculator.com',  desc: 'CIDR / subnet math' },
+		{ label: 'CIDR.xyz',          url: 'https://cidr.xyz',                   desc: 'Visual IP range explorer' },
+		{ label: 'MXToolbox',         url: 'https://mxtoolbox.com',              desc: 'DNS, MX, blacklist checks' },
+		{ label: 'SSL Labs',          url: 'https://www.ssllabs.com/ssltest/',   desc: 'TLS certificate audit' },
+		{ label: 'DNSChecker',        url: 'https://dnschecker.org',             desc: 'Global DNS propagation' },
+		{ label: 'Crontab Guru',      url: 'https://crontab.guru',              desc: 'Cron expression editor' },
+		{ label: 'ExplainShell',      url: 'https://explainshell.com',          desc: 'Explains any shell command' },
+		{ label: 'VirusTotal',        url: 'https://www.virustotal.com',         desc: 'File / URL / IP scanner' },
+		{ label: 'AbuseIPDB',         url: 'https://www.abuseipdb.com',          desc: 'Malicious IP lookup' },
+		{ label: 'Cloudflare Dash',   url: 'https://dash.cloudflare.com',        desc: 'DNS, tunnels, firewall' },
+		{ label: 'Docker Hub',        url: 'https://hub.docker.com',             desc: 'Container image registry' },
+		{ label: 'Regex101',          url: 'https://regex101.com',               desc: 'Regex tester & explainer' },
+	];
+
+	const ports = [
+		{ port: '21',    proto: 'TCP',     service: 'FTP' },
+		{ port: '22',    proto: 'TCP',     service: 'SSH' },
+		{ port: '25',    proto: 'TCP',     service: 'SMTP' },
+		{ port: '53',    proto: 'TCP/UDP', service: 'DNS' },
+		{ port: '80',    proto: 'TCP',     service: 'HTTP' },
+		{ port: '443',   proto: 'TCP',     service: 'HTTPS' },
+		{ port: '445',   proto: 'TCP',     service: 'SMB' },
+		{ port: '3306',  proto: 'TCP',     service: 'MySQL' },
+		{ port: '3389',  proto: 'TCP',     service: 'RDP' },
+		{ port: '5432',  proto: 'TCP',     service: 'PostgreSQL' },
+		{ port: '5985',  proto: 'TCP',     service: 'WinRM HTTP' },
+		{ port: '5986',  proto: 'TCP',     service: 'WinRM HTTPS' },
+		{ port: '8080',  proto: 'TCP',     service: 'HTTP alt' },
+		{ port: '8443',  proto: 'TCP',     service: 'HTTPS alt' },
+		{ port: '27017', proto: 'TCP',     service: 'MongoDB' },
+	];
 </script>
 
 <svelte:head><title>Work — olfke.be</title></svelte:head>
@@ -304,16 +319,16 @@
 			<div class="ph-swatch" style="background:var(--teal)"></div>
 		</header>
 
-		<!-- TABS -->
 		<div class="tabs-bar">
-			<button class="tab" class:active={activeTab === 'general'}  on:click={() => activeTab = 'general'}>General</button>
-			<button class="tab" class:active={activeTab === 'intune'}   on:click={() => activeTab = 'intune'}>Intune</button>
-			<button class="tab" class:active={activeTab === 'printing'} on:click={() => activeTab = 'printing'}>Printing</button>
+			{#each tabs as t}
+				<button class="tab" class:active={activeTab === t.id} on:click={() => activeTab = t.id}>
+					{t.label}
+				</button>
+			{/each}
 		</div>
 
-		<!-- ── GENERAL TAB ─────────────────────────────────────────────────── -->
+		<!-- ── GENERAL ──────────────────────────────────────────────────────── -->
 		{#if activeTab === 'general'}
-
 			<section class="content-section">
 				{#each sections as section}
 					<div class="shortcut-group">
@@ -331,18 +346,12 @@
 												<span class="si-prefix mono">⊞ + R &nbsp;›</span>
 											{/if}
 											<code class="si-cmd">{item.cmd}</code>
-											<button
-												class="si-copy"
-												class:copied={copied === item.cmd}
-												on:click={() => copy(item.cmd ?? '', item.cmd ?? '')}
-											>
+											<button class="si-copy" class:copied={copied === item.cmd} on:click={() => copy(item.cmd ?? '', item.cmd ?? '')}>
 												{copied === item.cmd ? '✓' : 'copy'}
 											</button>
 										</div>
 									{/if}
-									{#if item.note}
-										<div class="si-note">{item.note}</div>
-									{/if}
+									{#if item.note}<div class="si-note">{item.note}</div>{/if}
 								</div>
 							{/each}
 						</div>
@@ -350,11 +359,35 @@
 				{/each}
 			</section>
 
+		<!-- ── NETWORK ──────────────────────────────────────────────────────── -->
+		{:else if activeTab === 'network'}
+			<section class="content-section">
+				<div class="shortcut-group">
+					<div class="sg-header">
+						<div class="sg-dot" style="background:var(--teal)"></div>
+						<h2 class="sg-title">Quick Commands</h2>
+					</div>
+					<div class="sg-items">
+						{#each netCmds as item}
+							<div class="sg-item">
+								<div class="si-label">{item.label}</div>
+								<div class="si-cmd-wrap">
+									<code class="si-cmd">{item.cmd}</code>
+									<button class="si-copy" class:copied={copied === item.cmd} on:click={() => copy(item.cmd, item.cmd)}>
+										{copied === item.cmd ? '✓' : 'copy'}
+									</button>
+								</div>
+							</div>
+						{/each}
+					</div>
+				</div>
+			</section>
+
 			<section class="content-section cs-alt">
 				<div class="shortcut-group">
 					<div class="sg-header">
 						<div class="sg-dot" style="background:#b83232"></div>
-						<h2 class="sg-title">Network Troubleshooting — Bottom Up</h2>
+						<h2 class="sg-title">Troubleshooting — Bottom Up</h2>
 					</div>
 					<p class="sg-intro">Work from physical layer up. Confirm each layer before moving to the next.</p>
 					<div class="osi-stack">
@@ -422,6 +455,8 @@
 				</div>
 			</section>
 
+		<!-- ── DOCKER ───────────────────────────────────────────────────────── -->
+		{:else if activeTab === 'docker'}
 			<section class="content-section">
 				<div class="shortcut-group">
 					<div class="sg-header">
@@ -443,7 +478,9 @@
 						{/each}
 					</div>
 				</div>
-				<div class="shortcut-group" style="margin-top:2.5rem">
+			</section>
+			<section class="content-section cs-alt">
+				<div class="shortcut-group">
 					<div class="sg-header">
 						<div class="sg-dot" style="background:var(--orange)"></div>
 						<h2 class="sg-title">Docker Compose</h2>
@@ -465,7 +502,94 @@
 				</div>
 			</section>
 
-			<section class="content-section cs-alt">
+		<!-- ── TEAMS ────────────────────────────────────────────────────────── -->
+		{:else if activeTab === 'teams'}
+			<section class="content-section">
+				<div class="shortcut-group">
+					<div class="sg-header">
+						<div class="sg-dot" style="background:var(--purple, #6264a7)"></div>
+						<h2 class="sg-title">Call Queues & Auto Attendants</h2>
+					</div>
+					<div class="sg-items">
+						{#each teamsNotes as item}
+							<div class="sg-item">
+								<div class="si-label">{item.label}</div>
+								{#if item.note}<div class="si-note">{item.note}</div>{/if}
+							</div>
+						{/each}
+					</div>
+				</div>
+			</section>
+
+		<!-- ── INTUNE ───────────────────────────────────────────────────────── -->
+		{:else if activeTab === 'intune'}
+			<section class="content-section">
+				{#each intuneEntries as entry}
+					<div class="procedure-card">
+						<div class="sg-header">
+							<div class="sg-dot" style="background:var(--teal)"></div>
+							<h2 class="sg-title">{entry.title}</h2>
+						</div>
+						{#if entry.description}<p class="sg-intro">{entry.description}</p>{/if}
+						<ol class="steps-list">
+							{#each entry.steps as step}<li>{step}</li>{/each}
+						</ol>
+						{#if entry.commands}
+							<div class="sg-items cmd-block">
+								{#each entry.commands as c}
+									<div class="sg-item">
+										<div class="si-label">{c.label}</div>
+										<div class="si-cmd-wrap">
+											<code class="si-cmd">{c.cmd}</code>
+											<button class="si-copy" class:copied={copied === c.cmd} on:click={() => copy(c.cmd, c.cmd)}>
+												{copied === c.cmd ? '✓' : 'copy'}
+											</button>
+										</div>
+									</div>
+								{/each}
+							</div>
+						{/if}
+						{#if entry.note}<div class="procedure-note">{entry.note}</div>{/if}
+					</div>
+				{/each}
+			</section>
+
+		<!-- ── PRINTING ─────────────────────────────────────────────────────── -->
+		{:else if activeTab === 'printing'}
+			<section class="content-section">
+				{#each printEntries as entry}
+					<div class="procedure-card">
+						<div class="sg-header">
+							<div class="sg-dot" style="background:var(--mustard)"></div>
+							<h2 class="sg-title">{entry.title}</h2>
+						</div>
+						{#if entry.description}<p class="sg-intro">{entry.description}</p>{/if}
+						<ol class="steps-list">
+							{#each entry.steps as step}<li>{step}</li>{/each}
+						</ol>
+						{#if entry.commands}
+							<div class="sg-items cmd-block">
+								{#each entry.commands as c}
+									<div class="sg-item">
+										<div class="si-label">{c.label}</div>
+										<div class="si-cmd-wrap">
+											<code class="si-cmd">{c.cmd}</code>
+											<button class="si-copy" class:copied={copied === c.cmd} on:click={() => copy(c.cmd, c.cmd)}>
+												{copied === c.cmd ? '✓' : 'copy'}
+											</button>
+										</div>
+									</div>
+								{/each}
+							</div>
+						{/if}
+						{#if entry.note}<div class="procedure-note">{entry.note}</div>{/if}
+					</div>
+				{/each}
+			</section>
+
+		<!-- ── TOOLS ────────────────────────────────────────────────────────── -->
+		{:else if activeTab === 'tools'}
+			<section class="content-section">
 				<div class="shortcut-group">
 					<div class="sg-header">
 						<div class="sg-dot" style="background:var(--mustard)"></div>
@@ -482,8 +606,7 @@
 					</div>
 				</div>
 			</section>
-
-			<section class="content-section">
+			<section class="content-section cs-alt">
 				<div class="shortcut-group">
 					<div class="sg-header">
 						<div class="sg-dot" style="background:var(--orange)"></div>
@@ -501,87 +624,6 @@
 					</div>
 				</div>
 			</section>
-
-		<!-- ── INTUNE TAB ──────────────────────────────────────────────────── -->
-		{:else if activeTab === 'intune'}
-
-			<section class="content-section">
-				{#each intuneEntries as entry, i}
-					<div class="procedure-card" class:cs-alt={i % 2 !== 0}>
-						<div class="sg-header">
-							<div class="sg-dot" style="background:var(--teal)"></div>
-							<h2 class="sg-title">{entry.title}</h2>
-						</div>
-						{#if entry.description}
-							<p class="sg-intro">{entry.description}</p>
-						{/if}
-						<ol class="steps-list">
-							{#each entry.steps as step}
-								<li>{step}</li>
-							{/each}
-						</ol>
-						{#if entry.commands}
-							<div class="sg-items cmd-block">
-								{#each entry.commands as c}
-									<div class="sg-item">
-										<div class="si-label">{c.label}</div>
-										<div class="si-cmd-wrap">
-											<code class="si-cmd">{c.cmd}</code>
-											<button class="si-copy" class:copied={copied === c.cmd} on:click={() => copy(c.cmd, c.cmd)}>
-												{copied === c.cmd ? '✓' : 'copy'}
-											</button>
-										</div>
-									</div>
-								{/each}
-							</div>
-						{/if}
-						{#if entry.note}
-							<div class="procedure-note">{entry.note}</div>
-						{/if}
-					</div>
-				{/each}
-			</section>
-
-		<!-- ── PRINTING TAB ────────────────────────────────────────────────── -->
-		{:else if activeTab === 'printing'}
-
-			<section class="content-section">
-				{#each printEntries as entry, i}
-					<div class="procedure-card" class:cs-alt={i % 2 !== 0}>
-						<div class="sg-header">
-							<div class="sg-dot" style="background:var(--mustard)"></div>
-							<h2 class="sg-title">{entry.title}</h2>
-						</div>
-						{#if entry.description}
-							<p class="sg-intro">{entry.description}</p>
-						{/if}
-						<ol class="steps-list">
-							{#each entry.steps as step}
-								<li>{step}</li>
-							{/each}
-						</ol>
-						{#if entry.commands}
-							<div class="sg-items cmd-block">
-								{#each entry.commands as c}
-									<div class="sg-item">
-										<div class="si-label">{c.label}</div>
-										<div class="si-cmd-wrap">
-											<code class="si-cmd">{c.cmd}</code>
-											<button class="si-copy" class:copied={copied === c.cmd} on:click={() => copy(c.cmd, c.cmd)}>
-												{copied === c.cmd ? '✓' : 'copy'}
-											</button>
-										</div>
-									</div>
-								{/each}
-							</div>
-						{/if}
-						{#if entry.note}
-							<div class="procedure-note">{entry.note}</div>
-						{/if}
-					</div>
-				{/each}
-			</section>
-
 		{/if}
 
 	</main>
@@ -634,25 +676,18 @@ main { display: flex; flex-direction: column; }
 	display: flex;
 	border-bottom: 1px solid var(--paper);
 	padding: 0 5rem;
-	gap: 0;
 	background: var(--cream);
-	position: sticky;
-	top: 0;
-	z-index: 10;
+	position: sticky; top: 0; z-index: 10;
+	overflow-x: auto;
 }
 .tab {
-	font-family: var(--font-body);
-	font-size: 0.75rem;
-	font-weight: 500;
-	letter-spacing: 0.08em;
-	color: var(--char-lt);
-	background: none;
-	border: none;
+	font-family: var(--font-body); font-size: 0.75rem; font-weight: 500;
+	letter-spacing: 0.08em; color: var(--char-lt);
+	background: none; border: none;
 	border-bottom: 2px solid transparent;
-	padding: 1rem 1.5rem;
-	cursor: pointer;
+	padding: 1rem 1.5rem; cursor: pointer;
 	transition: color 0.15s, border-color 0.15s;
-	margin-bottom: -1px;
+	margin-bottom: -1px; white-space: nowrap;
 }
 .tab:hover { color: var(--char); }
 .tab.active { color: var(--char); border-bottom-color: var(--teal); }
@@ -670,8 +705,7 @@ main { display: flex; flex-direction: column; }
 .sg-item {
 	display: grid; grid-template-columns: 240px 1fr;
 	align-items: center; gap: 1.5rem;
-	padding: 0.65rem 0;
-	border-bottom: 1px solid var(--paper);
+	padding: 0.65rem 0; border-bottom: 1px solid var(--paper);
 	transition: background 0.15s;
 }
 .sg-item:last-child { border-bottom: none; }
@@ -685,9 +719,8 @@ main { display: flex; flex-direction: column; }
 	padding: 0.2rem 0.55rem; border-radius: 2px; letter-spacing: 0.02em;
 }
 .si-copy {
-	font-family: var(--font-mono); font-size: 0.5rem;
-	letter-spacing: 0.1em; color: var(--char-lt);
-	background: none; border: 1px solid var(--paper);
+	font-family: var(--font-mono); font-size: 0.5rem; letter-spacing: 0.1em;
+	color: var(--char-lt); background: none; border: 1px solid var(--paper);
 	padding: 0.15rem 0.4rem; cursor: pointer; transition: all 0.15s; border-radius: 2px;
 }
 .si-copy:hover { border-color: var(--teal); color: var(--teal); }
@@ -695,46 +728,23 @@ main { display: flex; flex-direction: column; }
 .si-note { font-family: var(--font-mono); font-size: 0.6rem; color: var(--char-lt); font-style: italic; grid-column: 2; }
 .warning-note { color: var(--red, #b83232) !important; }
 
-/* Procedure cards (Intune / Printing) */
+/* Procedure cards */
 .procedure-card {
-	padding: 2rem 0;
-	border-bottom: 1px solid var(--paper);
-	display: flex;
-	flex-direction: column;
-	gap: 1rem;
+	padding: 2rem 0; border-bottom: 1px solid var(--paper);
+	display: flex; flex-direction: column; gap: 1rem;
 }
 .procedure-card:last-child { border-bottom: none; }
 
-.steps-list {
-	margin: 0 0 0 1.25rem;
-	padding: 0;
-	display: flex;
-	flex-direction: column;
-	gap: 0.45rem;
-}
-.steps-list li {
-	font-family: var(--font-body);
-	font-size: 0.85rem;
-	color: var(--char-mid);
-	line-height: 1.5;
-	padding-left: 0.25rem;
-}
+.steps-list { margin: 0 0 0 1.25rem; padding: 0; display: flex; flex-direction: column; gap: 0.45rem; }
+.steps-list li { font-family: var(--font-body); font-size: 0.85rem; color: var(--char-mid); line-height: 1.5; padding-left: 0.25rem; }
 
-.cmd-block {
-	margin-top: 0.25rem;
-	border: 1px solid var(--paper);
-	padding: 0 1rem;
-}
+.cmd-block { border: 1px solid var(--paper); padding: 0 1rem; margin-top: 0.25rem; }
 
 .procedure-note {
-	font-family: var(--font-body);
-	font-size: 0.78rem;
-	font-weight: 300;
-	color: var(--char-lt);
-	background: var(--warm);
+	font-family: var(--font-body); font-size: 0.78rem; font-weight: 300;
+	color: var(--char-lt); background: var(--warm);
 	border-left: 3px solid var(--teal);
-	padding: 0.6rem 0.9rem;
-	line-height: 1.6;
+	padding: 0.6rem 0.9rem; line-height: 1.6;
 }
 
 /* OSI Stack */
