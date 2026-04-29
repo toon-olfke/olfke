@@ -144,8 +144,6 @@
 		{ label: 'Cloudflare Dash', url: 'https://dash.cloudflare.com', desc: 'DNS, tunnels, firewall' },
 		{ label: 'Docker Hub', url: 'https://hub.docker.com', desc: 'Container image registry' },
 		{ label: 'Regex101', url: 'https://regex101.com', desc: 'Regex tester & explainer' },
-		{ label: 'Browserling', url: 'https://www.browserling.com', desc: 'Cross-browser testing online' },
-		{ label: 'URLScan.io', url: 'https://urlscan.io', desc: 'URL & domain scanner' },
 	];
 
 	const ports = [
@@ -433,6 +431,47 @@
 								<div class="osi-check">Can ping some IPs in range but not all? → netmask issue</div>
 								<div class="osi-check">DC agent issue on firewall → restart the DC agent service</div>
 								<div class="osi-cmd"><code>route print</code> while connected — VPN routes present?</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</section>
+
+			<section class="content-section">
+				<div class="shortcut-group">
+					<div class="sg-header">
+						<div class="sg-dot" style="background:var(--red)"></div>
+						<h2 class="sg-title">Find Which Switch Port a Device Is On</h2>
+					</div>
+					<p class="sg-intro">Goal: turn an IP address into a physical switch port. Get the MAC from ARP first, then look it up on the switch.</p>
+					<div class="osi-stack">
+						<div class="osi-layer">
+							<div class="osi-left"><div class="osi-num">Step 1</div><div class="osi-name">Get MAC</div></div>
+							<div class="osi-checks">
+								<div class="osi-check">Ping the device first so it appears in the ARP table</div>
+								<div class="osi-cmd"><code>ping &lt;device-ip&gt;</code></div>
+								<div class="osi-cmd"><code>arp -a | findstr &lt;device-ip&gt;</code> — Windows (your PC or via gateway)</div>
+								<div class="osi-cmd"><code>show ip arp &lt;device-ip&gt;</code> — Cisco router/firewall</div>
+								<div class="osi-cmd"><code>show arp | grep &lt;device-ip&gt;</code> — pfSense / Linux</div>
+							</div>
+						</div>
+						<div class="osi-layer">
+							<div class="osi-left"><div class="osi-num">Step 2</div><div class="osi-name">Find Port</div></div>
+							<div class="osi-checks">
+								<div class="osi-check">Take the MAC from Step 1 and look it up in the switch MAC address table</div>
+								<div class="osi-check">The result shows the physical port the device is connected to (e.g. Gi0/12)</div>
+								<div class="osi-cmd"><code>show mac address-table | include &lt;mac&gt;</code> — Cisco</div>
+								<div class="osi-cmd"><code>show mac-address-table | grep &lt;mac&gt;</code> — HP / Aruba</div>
+								<div class="osi-check">UniFi: Clients → find device → Details → shows switch + port directly</div>
+								<div class="osi-check">Web UI (generic): look for MAC table or connected devices under the switch</div>
+							</div>
+						</div>
+						<div class="osi-layer">
+							<div class="osi-left"><div class="osi-num">Tip</div><div class="osi-name">Daisy chain</div></div>
+							<div class="osi-checks">
+								<div class="osi-check">If the MAC shows up on an uplink/trunk port, the device is behind another switch</div>
+								<div class="osi-check">Log into that switch and repeat Step 2 — keep following until you hit an access port</div>
+								<div class="osi-check">In UniFi the topology view shows the full path automatically</div>
 							</div>
 						</div>
 					</div>
