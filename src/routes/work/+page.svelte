@@ -63,6 +63,9 @@
 				{ label: 'Test connectivity', cmd: 'Test-NetConnection -ComputerName <host> -Port <port>', run: false },
 				{ label: 'Get AD user info (PS)', cmd: 'Get-ADUser -Identity <user> -Properties *', run: false },
 				{ label: 'Force GP update', cmd: 'gpupdate /force', run: false },
+				{ label: 'Find domain controller', cmd: 'nltest /dsgetdc:yourdomain.local', run: false },
+				{ label: 'Check domain trust relationship', cmd: 'Test-ComputerSecureChannel', run: false },
+				{ label: 'Repair domain trust relationship', cmd: 'Test-ComputerSecureChannel -Repair -Credential DOMAIN\\adminuser', run: false },
 			]
 		},
 		{
@@ -244,6 +247,24 @@
 				'Verify in Entra ID: Devices → All Devices — join type should show Hybrid Azure AD joined',
 			],
 			note: 'If the device fails to join the domain during OOBE, it is almost always a connectivity issue — the device needs to reach a DC. Also verify the Intune Connector service is running on the server.',
+		},
+		{
+		    title: 'Autopilot Diagnostics Script',
+		    description: 'Displays diagnostics from the current PC or captured logs — Autopilot profile settings, ESP status, apps, policies, certificates, and device registration events. Use the community version, the original is no longer maintained.',
+		    steps: [
+		        'Run PowerShell as administrator on the device being troubleshot',
+		        'Install the community version of the script (see command below)',
+		        'Run the script — it will output a full diagnostic overview of the Autopilot/ESP state',
+		        'Look for failed apps, stuck policies, certificate issues, or ODJ failures in the output',
+		        'For hybrid join issues, check the ODJ section specifically',
+		        'Note: does not work on ARM64 devices due to registry redirection in x86 PowerShell',
+		    ],
+		    commands: [
+		        { label: 'Install community script', cmd: 'Install-Script -Name Get-AutopilotDiagnosticsCommunity -Force' },
+		        { label: 'Run diagnostics', cmd: 'Get-AutopilotDiagnosticsCommunity' },
+		        { label: 'Run on captured log/CAB file', cmd: 'Get-AutopilotDiagnosticsCommunity -CABFile <path-to-cab>' },
+		    ],
+		    note: 'The original Get-AutopilotDiagnostics (by Michael Niehaus) still works but has not been updated since 2020. The community version (maintained by Andrew Taylor) is the actively updated fork and should be preferred.',
 		},
 	];
 
